@@ -1,8 +1,3 @@
-Cod.Venda;Data;Cliente;Cod.Produto;Produto_Nome;Qtd;Total;Observacoes
-1;19/04/2026 20:09:28;A Casa do Tio Taylor;000090;�bum de Figurinhas;1;110.0;Álbum personalizado de aniversário.
-1;19/04/2026 20:09:28;A Casa do Tio Taylor;000101;Adesivo grande escala;2;110.0;Adesivo para embalagens.
-1;19/04/2026 20:09:28;A Casa do Tio Taylor;000090;�bum de Figurinhas;1;110.0;Álbum da copa.
-2;20/04/2026 18:18:50;Adriana Ramos;000098;Adesivo Papel;3;60.0;teste de cadastro de venda
-2;20/04/2026 18:18:50;Adriana Ramos;000090;Álbum de Figurinhas;1;110.0;álbum de fotos caseiras
-3;20/04/2026 21:49:49;A Casa do Tio Taylor;000090;Álbum de Figurinhas;2;220.0;Álbum com fotos de família.
-3;20/04/2026 21:49:49;A Casa do Tio Taylor;000098;Adesivo Papel;1;5.2;Adesivos para potes.
+Cod.Venda;Data;Cod.Cliente;Tema;Cod.Produto;Qtd;Total;Observacoes
+1;21/04/2026 10:07:00;147;Aniversário da escola;000098;2;10.4;adesivos para brindes
+1;21/04/2026 10:07:00;147;Aniversário da escola;000218;1;95.0;Agenda da escola

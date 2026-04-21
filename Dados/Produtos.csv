@@ -1,10 +1,10 @@
 Codigo;Imagem;Nome;Observações;Preço;Estoque Atual;Código Extra;Categoria;Sub Categoria;Unidade;Fornecedor Principal;Código Ref.;Marca;Estoque Min.;Estoque Max.;Promoção;Data Inicial;Data Final;Preço Promocional;Status;Kit / Combo
 000090;;Álbum de Figurinhas;Temas diversos. Contém álbum de 15x15cm com 8 páginas e 25 figurinhas em 5 pacotinhos.;110.0;4.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
 000101;;Adesivo grande escala;;55.0;10.0;;Plottagem;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000098;;Adesivo Papel;Corte Personalizado;20.0;16.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;5.2;True;N�o
+000098;;Adesivo Papel;Corte Personalizado;20.0;14.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;5.2;True;N�o
 000097;;Adesivo vinil A4;cortes personalizados;35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 000207;;Agenda de bolso;;45.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000218;;Agenda semanal grande;;95.0;3.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+000218;;Agenda semanal grande;;95.0;2.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 000092;;Agenda Universal A5;capa dura + wire-o + miolo universal com p�ginas di�rias inteiras + saco canguru + el�stico;110.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 000008;;Almofada 30x30 Branca;Tactel + enchimento;30.0;4.0;Branca;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:25:44;05/05/2026;24.0;True;N�o
 000010;;Almofada 40x40 verso Preto;Tactel + enchimento;40.0;1.0;Preta;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:27:27;05/05/2026;32.0;True;N�o
