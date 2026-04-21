@@ -19,7 +19,7 @@ st.set_page_config(page_title="Gestão de Vendas Frui Partis", layout="wide")
 def carregar_estoque():
     return pd.read_csv(FILE_PRODUTOS, sep=SEPARADOR, dtype={'Status': bool})
 
-@st.cache_data
+@st.cache_data(ttl=600)
 def carregar_clientes():
     return pd.read_csv(FILE_CLIENTES, sep=SEPARADOR)
 
@@ -35,15 +35,17 @@ if 'reset_produto_key' not in st.session_state:
     st.session_state.reset_produto_key = 0
 if 'reset_venda_key' not in st.session_state:
     st.session_state.reset_venda_key = 0
-if 'editor_key_seed' not in st.session_state:
-    st.session_state.editor_key_seed = 0
+if 'editor_p_key' not in st.session_state:
+    st.session_state.editor_p_key = 0
+if 'editor_c_key' not in st.session_state:
+    st.session_state.editor_c_key = 0
 
 # --- CARREGAMENTO INICIAL ---
 df_p = carregar_estoque()
 df_c = carregar_clientes()
 df_v = carregar_vendas()
 
-# Tratamento de preços para garantir cálculos numéricos
+# Tratamento de preços para cálculos
 df_p['Preço'] = pd.to_numeric(df_p['Preço'], errors='coerce').fillna(0.0)
 df_p['Preço Promocional'] = pd.to_numeric(df_p['Preço Promocional'], errors='coerce').fillna(0.0)
 
@@ -63,8 +65,8 @@ def preparar_download_dados():
     return buf.getvalue()
 
 # --- INTERFACE ---
-aba_venda, aba_gestao, aba_relatorio = st.tabs([
-    "🛒 Registrar Venda", "📋 Gestão de Produtos", "📈 Relatórios"
+aba_venda, aba_gestao_p, aba_gestao_c, aba_relatorio = st.tabs([
+    "🛒 Registrar Venda", "📋 Gestão de Produtos", "👥 Gestão de Clientes", "📈 Relatórios"
 ])
 
 # --- ABA 1: REGISTRAR VENDA ---
@@ -117,7 +119,6 @@ with aba_venda:
         st.markdown("### 🛒 Itens no Carrinho")
         df_cart = pd.DataFrame(st.session_state.carrinho)
         
-        # Atualizado: use_container_width=True substituído por width='stretch'
         df_editado = st.data_editor(
             df_cart,
             column_config={
@@ -129,12 +130,9 @@ with aba_venda:
                 "Total": st.column_config.NumberColumn("Total Item", format="R$ %.2f", disabled=True),
                 "Observacoes": st.column_config.TextColumn("Observações")
             },
-            hide_index=True, 
-            width='stretch', 
-            key=f"ed_cart_{st.session_state.reset_venda_key}"
+            hide_index=True, width='stretch', key=f"ed_cart_{st.session_state.reset_venda_key}"
         )
 
-        # Recalculo do Total considerando os descontos aplicados
         df_editado['Total'] = (df_editado['Qtd'] * df_editado['Preço Un.']) * (1 - df_editado['Desconto %'] / 100)
         total_venda = df_editado['Total'].sum()
         
@@ -168,18 +166,40 @@ with aba_venda:
             st.success("Venda registrada!")
             st.rerun()
 
-# --- ABA 2: GESTÃO ---
-with aba_gestao:
+# --- ABA 2: GESTÃO DE PRODUTOS ---
+with aba_gestao_p:
     st.subheader("Painel de Produtos")
-    c_key = f"ed_{st.session_state.editor_key_seed}"
-    df_res = st.data_editor(df_p, hide_index=True, width='stretch', key=c_key)
-    if st.button("💾 Salvar Alterações", width='stretch'):
-        df_res.to_csv(FILE_PRODUTOS, index=False, sep=SEPARADOR)
+    p_key = f"ed_p_{st.session_state.editor_p_key}"
+    df_res_p = st.data_editor(df_p, hide_index=True, width='stretch', key=p_key)
+    if st.button("💾 Salvar Alterações de Produtos", width='stretch'):
+        df_res_p.to_csv(FILE_PRODUTOS, index=False, sep=SEPARADOR)
         st.cache_data.clear()
-        st.session_state.editor_key_seed += 1
+        st.session_state.editor_p_key += 1
         st.rerun()
 
-# --- ABA 3: RELATÓRIOS ---
+# --- ABA 3: GESTÃO DE CLIENTES ---
+with aba_gestao_c:
+    st.subheader("Painel de Clientes")
+    c_key = f"ed_c_{st.session_state.editor_c_key}"
+    
+    # Exibição editável baseada na estrutura de Clientes.csv (protegendo apenas o código)
+    df_res_c = st.data_editor(
+        df_c, 
+        hide_index=True, 
+        width='stretch', 
+        key=c_key,
+        column_config={
+            "Cod_Cliente": st.column_config.TextColumn("Cód. Cliente", disabled=True)
+        }
+    )
+    
+    if st.button("💾 Salvar Alterações de Clientes", width='stretch'):
+        df_res_c.to_csv(FILE_CLIENTES, index=False, sep=SEPARADOR)
+        st.cache_data.clear() # Atualiza os selectboxes da aba de venda
+        st.session_state.editor_c_key += 1
+        st.rerun()
+
+# --- ABA 4: RELATÓRIOS ---
 with aba_relatorio:
     st.subheader("Análise de Resultados")
     with st.expander("💾 Backup"):
