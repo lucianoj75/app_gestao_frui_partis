@@ -1,193 +1,191 @@
-Codigo;Imagem;Nome;Observações;Preço;Estoque Atual;Código Extra;Categoria;Sub Categoria;Unidade;Fornecedor Principal;Código Ref.;Marca;Estoque Min.;Estoque Max.;Promoção;Data Inicial;Data Final;Preço Promocional;Status;Kit / Combo
-000090;;Álbum de Figurinhas;Temas diversos. Contém álbum de 15x15cm com 8 páginas e 25 figurinhas em 5 pacotinhos.;110.0;4.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000101;;Adesivo grande escala;;55.0;10.0;;Plottagem;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000098;;Adesivo Papel;Corte Personalizado;20.0;14.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;5.2;True;N�o
-000097;;Adesivo vinil A4;cortes personalizados;35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000207;;Agenda de bolso;;45.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000218;;Agenda semanal grande;;95.0;2.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000092;;Agenda Universal A5;capa dura + wire-o + miolo universal com p�ginas di�rias inteiras + saco canguru + el�stico;110.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000008;;Almofada 30x30 Branca;Tactel + enchimento;30.0;4.0;Branca;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:25:44;05/05/2026;24.0;True;N�o
-000010;;Almofada 40x40 verso Preto;Tactel + enchimento;40.0;1.0;Preta;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:27:27;05/05/2026;32.0;True;N�o
-000009;;Almofada 40x40 verso Vermelho;Tactel + enchimento;40.0;1.0;Vermelha;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:28:23;05/05/2026;32.0;True;N�o
-000147;;Almofada canguru verso Preta;Tactel 20x30cm + enchimento;35.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:28:52;05/05/2026;28.0;True;N�o
-000151;;Almofada canguru verso Rosa Bebê;Tactel 20x30cm + enchimento;35.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:29:14;05/05/2026;28.0;True;N�o
-000003;;Almofada canguru verso Vermelho;Tactel 20x30cm + enchimento;35.0;1.0;Vermelha;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:29:37;05/05/2026;28.0;True;N�o
-000004;;Almofada Coração verso pelúcia vermelha;Tactel + pel�cia + enchimento;45.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:30:10;05/05/2026;36.0;True;N�o
-000007;;Almofada M�gica 40x40 Azul;Tactel + Paet� + enchimento;78.0;1.0;Azul;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:31:05;05/05/2026;62.0;True;N�o
-000005;;Almofada M�gica 40x40 Pink;Tactel + Paet� + enchimento;78.0;1.0;Pink;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:31:29;05/05/2026;62.0;True;N�o
-000117;;Almofada M�gica 40x40 Vermelha;Tactel + Paet� + enchimento;78.0;1.0;Vermelha;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:31:50;05/05/2026;62.0;True;N�o
-000058;;Arte Digital;;100.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000011;;Avental Preto;Tactel;40.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:32:17;05/05/2026;32.0;True;N�o
-000012;;Azulejo brilho 10x10;Cer�mica;20.0;9.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:32:46;05/05/2026;16.0;True;N�o
-000013;;Azulejo brilho 15x15;Cer�mica;27.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:33:26;05/05/2026;21.0;True;N�o
-000015;;Bandeja;MDF;69.0;3.0;Marrom;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:33:53;05/05/2026;55.0;True;N�o
-000016;;Button 3,8cm;Alum�nio;4.0;70.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000087;;Caderno A5;90 folhas pautadas + capa dura + wire-o;45.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000220;;Caderno A6;;35.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000156;;Camiseta Branca Adulto Manga Curta G;Poli�ster;25.0;2.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:35:05;05/05/2026;20.0;True;N�o
-000157;;Camiseta Branca Adulto Manga Curta GG;Poli�ster;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:35:27;05/05/2026;20.0;True;N�o
-000023;;Camiseta Branca Infantil Manga Curta tamanho 10;Poli�ster;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:35:48;05/05/2026;20.0;True;N�o
-000154;;Camiseta Branca Infantil Manga Curta tamanho 12;Poli�ster;25.0;8.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:36:34;05/05/2026;20.0;True;N�o
-000155;;Camiseta Branca Infantil Manga Curta tamanho 14;Poli�ster;25.0;9.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:37:00;05/05/2026;20.0;True;N�o
-000019;;Camiseta Branca Mach�o G;Poli�ster;25.0;8.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:37:26;05/05/2026;20.0;True;N�o
-000020;;Camiseta Branca Mach�o GG;Poli�ster;25.0;30.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:37:46;05/05/2026;20.0;True;N�o
-000022;;Camiseta Branca Nadador G;Poli�ster;25.0;2.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:38:10;05/05/2026;20.0;True;N�o
-000024;;Camiseta Branca Nadador GG;Poli�ster;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:38:34;05/05/2026;20.0;True;N�o
-000021;;Camiseta Branca Nadador M;Poli�ster;25.0;2.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:39:04;05/05/2026;20.0;True;N�o
-000153;;Camiseta Branca Nadador P;Poli�ster;25.0;2.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:39:29;05/05/2026;20.0;True;N�o
-000029;;Caneca al�a Basquete;Cer�mica + arame + pl�stico;65.0;1.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000114;;Caneca Al�a Colher Amarela;Cer�mica;60.0;0.0;Amarela;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000106;;Caneca Al�a Colher Azul;Cer�mica;60.0;0.0;Azul;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000115;;Caneca Al�a Colher Marrom;Cer�mica;60.0;0.0;Marrom;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000031;;Caneca Al�a Colher Preta;Cer�mica;60.0;1.0;Preta;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000030;;Caneca Al�a Colher Vermelha;Cer�mica;60.0;0.0;Vermelha;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000116;;Caneca Al�a Cora��o Amarela;Cer�mica;45.0;0.0;Amarela;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000032;;Caneca Al�a Cora��o Rosa;Cer�mica;45.0;1.0;Rosa;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000110;;Caneca Al�a/Interior Azul Claro;Cer�mica;45.0;5.0;Azul Claro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000129;;Caneca Al�a/Interior Azul Escuro;Cer�mica;45.0;1.0;Azul Escuro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000130;;Caneca Al�a/Interior Lil�s;Cer�mica;45.0;3.0;Lil�s;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000107;;Caneca Al�a/Interior Marrom;Cer�mica;45.0;0.0;Marrom;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000037;;Caneca Al�a/Interior Preta;Cer�mica;45.0;0.0;Preta;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000108;;Caneca Al�a/Interior Rosa;Cer�mica;45.0;0.0;Rosa;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000111;;Caneca Al�a/Interior Verde Claro;Cer�mica;45.0;1.0;Verde Claro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000109;;Caneca Al�a/Interior Verde Escuro;Cer�mica;45.0;0.0;Verde Escuro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000131;;Caneca Al�a/Interior Vermelha;Cer�mica;45.0;6.0;Vermelha;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000026;;Caneca Branca;Cer�mica;35.0;32.0;Branca;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000138;;Caneca Chocolate Pronta Entrega;;25.0;1.0;Chocolate;Produtos pronta entrega;;Pe�a;;;;0.0;0.0;SIM;31/10/2022 18:25:17;30/11/2023 03:00:00;40.5;True;N�o
-000112;;Caneca Cromada Dourada;Cer�mica;60.0;3.0;Ouro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000118;;Caneca Cromada Grafite;Cer�mica;60.0;1.0;grafite;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000034;;Caneca Cromada Prata;Cer�mica;60.0;0.0;Prata;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000033;;Caneca Cromada rosa;Cer�mica;60.0;8.0;rosa;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000119;;Caneca Cromada Rose Gold;Cer�mica;60.0;2.0;rose gold;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000035;;Caneca de chopp;Alum�nio;25.0;47.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000121;;Caneca Glitter Azul;Cer�mica;60.0;1.0;Azul;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000120;;Caneca Glitter Pink;Cer�mica;60.0;1.0;Pink;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000036;;Caneca Glitter Prata;Cer�mica;60.0;1.0;Prata;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000025;;Caneca Interior Mandala;Cer�mica;30.0;10.0;;Caneca;;Pe�a;;;Cer�mica;0.0;0.0;SIM;05/03/2026 15:40:12;05/05/2026;25.0;True;N�o
-000027;;Caneca Interior Thank You;Cer�mica;30.0;2.0;;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:40:32;05/05/2026;25.0;True;N�o
-000028;;Caneca Interior Vc � o Cara;Cer�mica;30.0;10.0;;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:41:03;05/05/2026;25.0;True;N�o
-000038;;Caneca Jarro fosca;Vidro;65.0;2.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000039;;Caneca M�gica;Cer�mica com revestimento t�rmico. (caneca fria toda preta, a imagem aparece com aquecimento);60.0;-1.0;Preta;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000040;;Caneca Metalizada Dourada;Cer�mica;60.0;2.0;Ouro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000222;;Caneca mini 285ml;;34.0;1.0;;Caneca;;;;;Cer�mica;0.0;0.0;NAO;;;0.0;True;N�o
-000126;;Caneca Pol�mero Amarela;Pol�mero;26.0;1.0;Amarela;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000124;;Caneca Pol�mero Azul Claro;Pol�mero;26.0;0.0;Azul Claro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000128;;Caneca Pol�mero Branca;Pol�mero;26.0;3.0;Branca;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000123;;Caneca Pol�mero Laranja;Pol�mero;26.0;2.0;Laranja;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000125;;Caneca Pol�mero Preta;Pol�mero;26.0;0.0;Preta;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000122;;Caneca Pol�mero Rosa;Pol�mero;26.0;0.0;Rosa;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000127;;Caneca Pol�mero Verde Claro;Pol�mero;26.0;0.0;Verde Claro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000041;;Caneca Pol�mero Vermelha;Pol�mero;26.0;0.0;Vermelha;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000140;;Caneca PRONTA ENTREGA Nossa Hist�ria � Linda!;;25.0;1.0;Nossa Hist�ria;Produtos pronta entrega;;Pe�a;;;;0.0;0.0;SIM;31/10/2022 18:29:10;30/11/2023 03:00:00;40.5;True;N�o
-000139;;Caneca PRONTA ENTREGA Te amo daqui at� a Lua;;25.0;1.0;Te amo;Produtos pronta entrega;;Pe�a;;;;0.0;0.0;SIM;31/10/2022 18:28:28;30/11/2023 03:00:00;40.5;True;N�o
-000137;;Caneca PRONTA ENTREGA glitter dourada Gato;;25.0;1.0;;Produtos pronta entrega;;Pe�a;;;;0.0;0.0;SIM;31/10/2022 18:26:02;30/11/2023 03:00:00;49.5;True;N�o
-000046;;Caneca transparente Azul;Vidro;35.0;0.0;Azul;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:42:09;05/05/2026;30.0;True;N�o
-000047;;Caneca transparente Fosca;Vidro;35.0;3.0;Fosca;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:42:26;05/05/2026;30.0;True;N�o
-000045;;Caneca transparente Rosa;Vidro;35.0;3.0;Rosa;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:42:40;05/05/2026;30.0;True;N�o
-000043;;Canec�o de Chopp Cristal;Vidro;75.0;1.0;Cristal;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:43:19;05/05/2026;60.0;True;N�o
-000044;;Canec�o de Chopp Fosca;Vidro;75.0;1.0;Jateada;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:43:38;05/05/2026;60.0;True;N�o
-000211;;Cart�o de Visita;;50.0;0.0;;Gr�fica;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000095;;Cart�o Presente;Papel 10x15 (fechado) + envelope;15.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000209;;centro de mesa sextavado;;15.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000232;;Chaveiro button 2,5cm dupla face AMARELO;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000228;;Chaveiro button 2,5cm dupla face AZUL;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000227;;Chaveiro button 2,5cm dupla face BRANCO;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000226;;Chaveiro button 2,5cm dupla face PRETO;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000230;;Chaveiro button 2,5cm dupla face ROSA;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000231;;Chaveiro button 2,5cm dupla face VERDE;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000229;;Chaveiro button 2,5cm dupla face VERMELHO;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000134;;Chaveiro button 3,8cm;alum�nio + argolas;4.5;90.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000176;;Chinelo Azul Marinho (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:45:01;05/05/2026;20.0;True;N�o
-000162;;Chinelo Azul Marinho 35/36;;25.0;3.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:45:27;05/05/2026;20.0;True;N�o
-000179;;Chinelo Azul Marinho 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:45:46;05/05/2026;20.0;True;N�o
-000182;;Chinelo Azul Marinho 39/40;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:46:04;05/05/2026;20.0;True;N�o
-000200;;Chinelo Azul Marinho 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:46:28;05/05/2026;20.0;True;N�o
-000169;;Chinelo Azul Royal (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:46:44;05/05/2026;20.0;True;N�o
-000048;;Chinelo Azul Royal 35/36;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:47:08;05/05/2026;20.0;True;N�o
-000049;;Chinelo Azul Royal 37/38;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:47:32;05/05/2026;20.0;True;N�o
-000187;;Chinelo Azul Royal 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:47:52;05/05/2026;20.0;True;N�o
-000192;;Chinelo Azul Royal 41/42;;25.0;3.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:48:13;05/05/2026;20.0;True;N�o
-000199;;Chinelo Branco (tira bege) 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:48:39;05/05/2026;20.0;True;N�o
-000185;;Chinelo Branco (tira dourada) 39/40;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:48:59;05/05/2026;20.0;True;N�o
-000184;;Chinelo Branco (tira laranja) 39/40;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:49:18;05/05/2026;20.0;True;N�o
-000051;;Chinelo Branco (tira rosa) 37/38;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:49:36;05/05/2026;20.0;True;N�o
-000186;;Chinelo Branco (tira rosa) 39/40;;25.0;3.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:49:57;05/05/2026;20.0;True;N�o
-000174;;Chinelo branco (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:50:35;05/05/2026;20.0;True;N�o
-000050;;Chinelo Branco 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:50:53;05/05/2026;20.0;True;N�o
-000171;;Chinelo Lil�s (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:51:14;05/05/2026;20.0;True;N�o
-000167;;Chinelo Lil�s 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:51:37;05/05/2026;20.0;True;N�o
-000178;;Chinelo Lil�s 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:51:57;05/05/2026;20.0;True;N�o
-000197;;Chinelo Lil�s 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:52:16;05/05/2026;20.0;True;N�o
-000183;;Chinelo Marrom 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:52:37;05/05/2026;20.0;True;N�o
-000175;;Chinelo Preto (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:52:57;05/05/2026;20.0;True;N�o
-000164;;Chinelo Preto 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:53:15;05/05/2026;20.0;True;N�o
-000181;;Chinelo Preto 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:53:35;05/05/2026;20.0;True;N�o
-000194;;Chinelo Preto 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:53:54;05/05/2026;20.0;True;N�o
-000170;;Chinelo Rosa (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:54:12;05/05/2026;20.0;True;N�o
-000166;;Chinelo Rosa 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:54:31;05/05/2026;20.0;True;N�o
-000180;;Chinelo Rosa 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:54:56;05/05/2026;20.0;True;N�o
-000189;;Chinelo Rosa 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:55:18;05/05/2026;20.0;True;N�o
-000195;;Chinelo Rosa 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:55:35;05/05/2026;20.0;True;N�o
-000165;;Chinelo Roxo 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:55:54;05/05/2026;20.0;True;N�o
-000188;;Chinelo Roxo 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:56:11;05/05/2026;20.0;True;N�o
-000196;;Chinelo Roxo 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:56:29;05/05/2026;20.0;True;N�o
-000168;;Chinelo Verde Claro (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:56:49;05/05/2026;20.0;True;N�o
-000163;;Chinelo Verde Claro 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:57:08;05/05/2026;20.0;True;N�o
-000052;;Chinelo Verde Claro 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:57:39;05/05/2026;20.0;True;N�o
-000190;;Chinelo Verde Claro 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:57:59;05/05/2026;20.0;True;N�o
-000193;;Chinelo Verde Claro 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:58:17;05/05/2026;20.0;True;N�o
-000172;;Chinelo Verde Escuro (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:58:34;05/05/2026;20.0;True;N�o
-000053;;Chinelo Verde Escuro 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:58:53;05/05/2026;20.0;True;N�o
-000191;;Chinelo Verde Escuro 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:59:14;05/05/2026;20.0;True;N�o
-000173;;Chinelo Vermelho (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:59:35;05/05/2026;20.0;True;N�o
-000177;;Chinelo Vermelho 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:00:01;05/05/2026;20.0;True;N�o
-000198;;Chinelo Vermelho 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:00:23;05/05/2026;20.0;True;N�o
-000225;;Clips button 2,5cm;Alum�nio;4.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000141;;Convite digital;;100.0;0.0;;Arte Digital;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000054;;Coqueteleira Shaker Preta;Pl�stico + adesivo de  recorte;20.0;9.0;Preta;Papelaria Criativa;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:00:56;05/05/2026;15.0;True;N�o
-000136;;Coqueteleira Shaker Rosa;Pl�stico + adesivo de  recorte;20.0;3.0;Rosa;Papelaria Criativa;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:01:20;05/05/2026;15.0;True;N�o
-000091;;Di�rio;+ capa dura + wire-o + 90 p�ginas pautadas + adesivos personalizados + saco canguru + tag + el�stico;90.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000234;;Di�rio de Interc�mbio A5;90 folhas pautadas + capa dura + wire-o;150.0;;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000081;;Enfeite de parede;;50.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000233;;Espelho Button 3,8cm;Alum�nio;9.0;0.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000057;;Guarda-Chuva;1,20m Tactel + haste dupla + cabo emborrachado;150.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000105;;�m� button de geladeira 3,8cm;alum�nio + �m�;5.0;0.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000142;;Impress�o Gr�fica;;0.0;0.0;;Gr�fica;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000135;;Kit 4 X�caras empilh�veis e Suporte de Metal;200 ml;150.0;1.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000235;;Kit Dia das M�es 2026;;110.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000100;;Kit tags personalizadas;tags plastificadas + furo com ilh�s (1 marca p�gina, 1 tag G, 2 tags M e 1 tag P);35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000205;;Lamina��o;;6.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000060;;Lixeira Para Carro;Neoprene;20.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:01:58;05/05/2026;15.0;True;N�o
-000061;;M�scara Adulto;Poli�ster;10.0;35.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:02:22;05/05/2026;5.0;True;N�o
-000063;;M�scara de Dormir Infantil;Neoprene;15.0;4.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:02:45;05/05/2026;10.0;True;N�o
-000062;;M�scara Infantil;Poli�ster;10.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:03:04;05/05/2026;5.0;True;N�o
-000065;;Moldura de Azulejo;MDF;20.0;4.0;15x15cm;N�o Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000066;;Mouse Pad Redondo;Neoprene + Tecido sem acabamento;20.0;9.0;Redondo;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:03:45;05/05/2026;15.0;True;N�o
-000067;;Mouse Pad Retangular;Neoprene + Tecido sem acabamento;20.0;6.0;Retangular;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:04:01;05/05/2026;15.0;True;N�o
-000215;;Outros;;0.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000158;;Pantufa Preta 35/36;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:04:25;05/05/2026;20.0;True;N�o
-000160;;Pantufa Rosa 33/34;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:04:44;05/05/2026;20.0;True;N�o
-000161;;Pantufa Vermelha 35/36;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:05:05;05/05/2026;20.0;True;N�o
-000224;;Passaporte;;80.0;;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000069;;Porta Copos;Neoprene + tecido sem acabamento;3.8;10.0;Redondo;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000072;;Porta Espeto;MDF;45.0;6.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:05:26;05/05/2026;35.0;True;N�o
-000070;;Porta Lata;Alum�nio + isopor;30.0;48.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000219;;Post-it;;25.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000074;;Quadrinho A4;MDF;35.0;2.0;A4;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:05:45;05/05/2026;25.0;True;N�o
-000113;;Quadrinho de Papel 20x20;(valor pode variar);90.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000073;;Quadro Luminoso;MDF + Acr�lico + LED;100.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:06:12;05/05/2026;80.0;True;N�o
-000077;;Quebra Cabe�a 12 pe�as 10x5cm;Papel�o;10.0;7.0;12 pe�as;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000076;;Quebra cabe�a 4 pe�as 5x5cm;PET;5.0;8.0;4 pe�as;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000206;;Raspadinha A4;;30.0;0.0;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000214;;Recorte Cameo;;10.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000071;;Retrato Cora��o;MDF;34.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:06:52;05/05/2026;25.0;True;N�o
-000078;;Sacola 47x35;PET;20.0;8.0;00x00cm;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:28:21;05/05/2026;15.0;True;N�o
-000079;;Squeeze Bolinha Branca;Alum�nio + pl�stico (bico pl�stico retr�til);35.0;5.0;Branca;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;25/10/2022;25/10/2023;30.0;True;N�o
-000082;;Suporte de Celular Premium;MDF;40.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:07:18;05/05/2026;30.0;True;N�o
-000084;;T�bua de corte;Vidro;49.0;3.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:07:40;05/05/2026;35.0;True;N�o
-000143;;Tags para lembran�as;;15.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000094;;Topo de Bolo;Temas diversos em Papel;50.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000093;;Topper de docinhos;;15.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-000152;;Volta �s Aulas - Adesivos;;35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-;;;;0.0;;;;;;;;;;;;;;0.0;True;
-;;;;0.0;671.0;;;;;;;;;;;;;0.0;True;
+Cod_Produto;Imagem;Nome;Observações;Preço;Estoque Atual;Código Extra;Categoria;Sub Categoria;Unidade;Fornecedor Principal;Código Ref.;Marca;Estoque Min.;Estoque Max.;Promoção;Data Inicial;Data Final;Preço Promocional;Status;Kit / Combo
+90;;Álbum de Figurinhas;Temas diversos. Contém álbum de 15x15cm com 8 páginas e 25 figurinhas em 5 pacotinhos.;110.0;0.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+101;;Adesivo grande escala;;55.0;8.0;;Plottagem;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+98;;Adesivo Papel;Corte Personalizado;20.0;12.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;5.2;True;N�o
+97;;Adesivo vinil A4;cortes personalizados;35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+207;;Agenda de bolso;;45.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+218;;Agenda semanal grande;;95.0;1.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+92;;Agenda Universal A5;capa dura + wire-o + miolo universal com p�ginas di�rias inteiras + saco canguru + el�stico;110.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+8;;Almofada 30x30 Branca;Tactel + enchimento;30.0;4.0;Branca;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:25:44;05/05/2026;24.0;True;N�o
+10;;Almofada 40x40 verso Preto;Tactel + enchimento;40.0;1.0;Preta;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:27:27;05/05/2026;32.0;True;N�o
+9;;Almofada 40x40 verso Vermelho;Tactel + enchimento;40.0;1.0;Vermelha;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:28:23;05/05/2026;32.0;True;N�o
+147;;Almofada canguru verso Preta;Tactel 20x30cm + enchimento;35.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:28:52;05/05/2026;28.0;True;N�o
+151;;Almofada canguru verso Rosa Bebê;Tactel 20x30cm + enchimento;35.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:29:14;05/05/2026;28.0;True;N�o
+3;;Almofada canguru verso Vermelho;Tactel 20x30cm + enchimento;35.0;1.0;Vermelha;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:29:37;05/05/2026;28.0;True;N�o
+4;;Almofada Coração verso pelúcia vermelha;Tactel + pel�cia + enchimento;45.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:30:10;05/05/2026;36.0;True;N�o
+7;;Almofada M�gica 40x40 Azul;Tactel + Paet� + enchimento;78.0;1.0;Azul;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:31:05;05/05/2026;62.0;True;N�o
+5;;Almofada M�gica 40x40 Pink;Tactel + Paet� + enchimento;78.0;1.0;Pink;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:31:29;05/05/2026;62.0;True;N�o
+117;;Almofada M�gica 40x40 Vermelha;Tactel + Paet� + enchimento;78.0;1.0;Vermelha;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:31:50;05/05/2026;62.0;True;N�o
+58;;Arte Digital;;100.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+11;;Avental Preto;Tactel;40.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:32:17;05/05/2026;32.0;True;N�o
+12;;Azulejo brilho 10x10;Cer�mica;20.0;9.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:32:46;05/05/2026;16.0;True;N�o
+13;;Azulejo brilho 15x15;Cer�mica;27.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:33:26;05/05/2026;21.0;True;N�o
+15;;Bandeja;MDF;69.0;3.0;Marrom;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:33:53;05/05/2026;55.0;True;N�o
+16;;Button 3,8cm;Alum�nio;4.0;70.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+87;;Caderno A5;90 folhas pautadas + capa dura + wire-o;45.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+220;;Caderno A6;;35.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+156;;Camiseta Branca Adulto Manga Curta G;Poli�ster;25.0;2.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:35:05;05/05/2026;20.0;True;N�o
+157;;Camiseta Branca Adulto Manga Curta GG;Poli�ster;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:35:27;05/05/2026;20.0;True;N�o
+23;;Camiseta Branca Infantil Manga Curta tamanho 10;Poli�ster;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:35:48;05/05/2026;20.0;True;N�o
+154;;Camiseta Branca Infantil Manga Curta tamanho 12;Poli�ster;25.0;8.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:36:34;05/05/2026;20.0;True;N�o
+155;;Camiseta Branca Infantil Manga Curta tamanho 14;Poli�ster;25.0;9.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:37:00;05/05/2026;20.0;True;N�o
+19;;Camiseta Branca Mach�o G;Poli�ster;25.0;8.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:37:26;05/05/2026;20.0;True;N�o
+20;;Camiseta Branca Mach�o GG;Poli�ster;25.0;30.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:37:46;05/05/2026;20.0;True;N�o
+22;;Camiseta Branca Nadador G;Poli�ster;25.0;2.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:38:10;05/05/2026;20.0;True;N�o
+24;;Camiseta Branca Nadador GG;Poli�ster;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:38:34;05/05/2026;20.0;True;N�o
+21;;Camiseta Branca Nadador M;Poli�ster;25.0;2.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:39:04;05/05/2026;20.0;True;N�o
+153;;Camiseta Branca Nadador P;Poli�ster;25.0;2.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 15:39:29;05/05/2026;20.0;True;N�o
+29;;Caneca al�a Basquete;Cer�mica + arame + pl�stico;65.0;1.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+114;;Caneca Al�a Colher Amarela;Cer�mica;60.0;0.0;Amarela;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+106;;Caneca Al�a Colher Azul;Cer�mica;60.0;0.0;Azul;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+115;;Caneca Al�a Colher Marrom;Cer�mica;60.0;0.0;Marrom;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+31;;Caneca Al�a Colher Preta;Cer�mica;60.0;1.0;Preta;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+30;;Caneca Al�a Colher Vermelha;Cer�mica;60.0;0.0;Vermelha;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+116;;Caneca Al�a Cora��o Amarela;Cer�mica;45.0;0.0;Amarela;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+32;;Caneca Al�a Cora��o Rosa;Cer�mica;45.0;1.0;Rosa;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+110;;Caneca Al�a/Interior Azul Claro;Cer�mica;45.0;5.0;Azul Claro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+129;;Caneca Al�a/Interior Azul Escuro;Cer�mica;45.0;1.0;Azul Escuro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+130;;Caneca Al�a/Interior Lil�s;Cer�mica;45.0;3.0;Lil�s;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+107;;Caneca Al�a/Interior Marrom;Cer�mica;45.0;0.0;Marrom;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+37;;Caneca Al�a/Interior Preta;Cer�mica;45.0;0.0;Preta;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+108;;Caneca Al�a/Interior Rosa;Cer�mica;45.0;0.0;Rosa;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+111;;Caneca Al�a/Interior Verde Claro;Cer�mica;45.0;1.0;Verde Claro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+109;;Caneca Al�a/Interior Verde Escuro;Cer�mica;45.0;0.0;Verde Escuro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+131;;Caneca Al�a/Interior Vermelha;Cer�mica;45.0;6.0;Vermelha;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+26;;Caneca Branca;Cer�mica;35.0;32.0;Branca;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+138;;Caneca Chocolate Pronta Entrega;;25.0;1.0;Chocolate;Produtos pronta entrega;;Pe�a;;;;0.0;0.0;SIM;31/10/2022 18:25:17;30/11/2023 03:00:00;40.5;True;N�o
+112;;Caneca Cromada Dourada;Cer�mica;60.0;3.0;Ouro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+118;;Caneca Cromada Grafite;Cer�mica;60.0;1.0;grafite;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+34;;Caneca Cromada Prata;Cer�mica;60.0;0.0;Prata;Caneca;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+33;;Caneca Cromada rosa;Cer�mica;60.0;8.0;rosa;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+119;;Caneca Cromada Rose Gold;Cer�mica;60.0;2.0;rose gold;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+35;;Caneca de chopp;Alum�nio;25.0;47.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+121;;Caneca Glitter Azul;Cer�mica;60.0;1.0;Azul;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+120;;Caneca Glitter Pink;Cer�mica;60.0;1.0;Pink;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+36;;Caneca Glitter Prata;Cer�mica;60.0;1.0;Prata;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+25;;Caneca Interior Mandala;Cer�mica;30.0;10.0;;Caneca;;Pe�a;;;Cer�mica;0.0;0.0;SIM;05/03/2026 15:40:12;05/05/2026;25.0;True;N�o
+27;;Caneca Interior Thank You;Cer�mica;30.0;2.0;;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:40:32;05/05/2026;25.0;True;N�o
+28;;Caneca Interior Vc � o Cara;Cer�mica;30.0;10.0;;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:41:03;05/05/2026;25.0;True;N�o
+38;;Caneca Jarro fosca;Vidro;65.0;2.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+39;;Caneca M�gica;Cer�mica com revestimento t�rmico. (caneca fria toda preta, a imagem aparece com aquecimento);60.0;-1.0;Preta;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+40;;Caneca Metalizada Dourada;Cer�mica;60.0;2.0;Ouro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+222;;Caneca mini 285ml;;34.0;1.0;;Caneca;;;;;Cer�mica;0.0;0.0;NAO;;;0.0;True;N�o
+126;;Caneca Pol�mero Amarela;Pol�mero;26.0;1.0;Amarela;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+124;;Caneca Pol�mero Azul Claro;Pol�mero;26.0;0.0;Azul Claro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+128;;Caneca Pol�mero Branca;Pol�mero;26.0;3.0;Branca;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+123;;Caneca Pol�mero Laranja;Pol�mero;26.0;2.0;Laranja;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+125;;Caneca Pol�mero Preta;Pol�mero;26.0;0.0;Preta;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+122;;Caneca Pol�mero Rosa;Pol�mero;26.0;0.0;Rosa;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+127;;Caneca Pol�mero Verde Claro;Pol�mero;26.0;0.0;Verde Claro;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+41;;Caneca Pol�mero Vermelha;Pol�mero;26.0;0.0;Vermelha;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+140;;Caneca PRONTA ENTREGA Nossa Hist�ria � Linda!;;25.0;1.0;Nossa Hist�ria;Produtos pronta entrega;;Pe�a;;;;0.0;0.0;SIM;31/10/2022 18:29:10;30/11/2023 03:00:00;40.5;True;N�o
+139;;Caneca PRONTA ENTREGA Te amo daqui at� a Lua;;25.0;1.0;Te amo;Produtos pronta entrega;;Pe�a;;;;0.0;0.0;SIM;31/10/2022 18:28:28;30/11/2023 03:00:00;40.5;True;N�o
+137;;Caneca PRONTA ENTREGA glitter dourada Gato;;25.0;1.0;;Produtos pronta entrega;;Pe�a;;;;0.0;0.0;SIM;31/10/2022 18:26:02;30/11/2023 03:00:00;49.5;True;N�o
+46;;Caneca transparente Azul;Vidro;35.0;0.0;Azul;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:42:09;05/05/2026;30.0;True;N�o
+47;;Caneca transparente Fosca;Vidro;35.0;3.0;Fosca;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:42:26;05/05/2026;30.0;True;N�o
+45;;Caneca transparente Rosa;Vidro;35.0;3.0;Rosa;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:42:40;05/05/2026;30.0;True;N�o
+43;;Canec�o de Chopp Cristal;Vidro;75.0;1.0;Cristal;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:43:19;05/05/2026;60.0;True;N�o
+44;;Canec�o de Chopp Fosca;Vidro;75.0;1.0;Jateada;Caneca;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:43:38;05/05/2026;60.0;True;N�o
+211;;Cart�o de Visita;;50.0;0.0;;Gr�fica;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+95;;Cart�o Presente;Papel 10x15 (fechado) + envelope;15.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+209;;centro de mesa sextavado;;15.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+232;;Chaveiro button 2,5cm dupla face AMARELO;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+228;;Chaveiro button 2,5cm dupla face AZUL;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+227;;Chaveiro button 2,5cm dupla face BRANCO;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+226;;Chaveiro button 2,5cm dupla face PRETO;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+230;;Chaveiro button 2,5cm dupla face ROSA;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+231;;Chaveiro button 2,5cm dupla face VERDE;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+229;;Chaveiro button 2,5cm dupla face VERMELHO;Alum�nio;6.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+134;;Chaveiro button 3,8cm;alum�nio + argolas;4.5;90.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+176;;Chinelo Azul Marinho (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:45:01;05/05/2026;20.0;True;N�o
+162;;Chinelo Azul Marinho 35/36;;25.0;3.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:45:27;05/05/2026;20.0;True;N�o
+179;;Chinelo Azul Marinho 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:45:46;05/05/2026;20.0;True;N�o
+182;;Chinelo Azul Marinho 39/40;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:46:04;05/05/2026;20.0;True;N�o
+200;;Chinelo Azul Marinho 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:46:28;05/05/2026;20.0;True;N�o
+169;;Chinelo Azul Royal (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:46:44;05/05/2026;20.0;True;N�o
+48;;Chinelo Azul Royal 35/36;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:47:08;05/05/2026;20.0;True;N�o
+49;;Chinelo Azul Royal 37/38;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:47:32;05/05/2026;20.0;True;N�o
+187;;Chinelo Azul Royal 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:47:52;05/05/2026;20.0;True;N�o
+192;;Chinelo Azul Royal 41/42;;25.0;3.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:48:13;05/05/2026;20.0;True;N�o
+199;;Chinelo Branco (tira bege) 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:48:39;05/05/2026;20.0;True;N�o
+185;;Chinelo Branco (tira dourada) 39/40;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:48:59;05/05/2026;20.0;True;N�o
+184;;Chinelo Branco (tira laranja) 39/40;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:49:18;05/05/2026;20.0;True;N�o
+51;;Chinelo Branco (tira rosa) 37/38;;25.0;2.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:49:36;05/05/2026;20.0;True;N�o
+186;;Chinelo Branco (tira rosa) 39/40;;25.0;3.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:49:57;05/05/2026;20.0;True;N�o
+174;;Chinelo branco (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:50:35;05/05/2026;20.0;True;N�o
+50;;Chinelo Branco 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:50:53;05/05/2026;20.0;True;N�o
+171;;Chinelo Lil�s (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:51:14;05/05/2026;20.0;True;N�o
+167;;Chinelo Lil�s 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:51:37;05/05/2026;20.0;True;N�o
+178;;Chinelo Lil�s 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:51:57;05/05/2026;20.0;True;N�o
+197;;Chinelo Lil�s 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:52:16;05/05/2026;20.0;True;N�o
+183;;Chinelo Marrom 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:52:37;05/05/2026;20.0;True;N�o
+175;;Chinelo Preto (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:52:57;05/05/2026;20.0;True;N�o
+164;;Chinelo Preto 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:53:15;05/05/2026;20.0;True;N�o
+181;;Chinelo Preto 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:53:35;05/05/2026;20.0;True;N�o
+194;;Chinelo Preto 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:53:54;05/05/2026;20.0;True;N�o
+170;;Chinelo Rosa (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:54:12;05/05/2026;20.0;True;N�o
+166;;Chinelo Rosa 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:54:31;05/05/2026;20.0;True;N�o
+180;;Chinelo Rosa 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:54:56;05/05/2026;20.0;True;N�o
+189;;Chinelo Rosa 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:55:18;05/05/2026;20.0;True;N�o
+195;;Chinelo Rosa 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:55:35;05/05/2026;20.0;True;N�o
+165;;Chinelo Roxo 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:55:54;05/05/2026;20.0;True;N�o
+188;;Chinelo Roxo 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:56:11;05/05/2026;20.0;True;N�o
+196;;Chinelo Roxo 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:56:29;05/05/2026;20.0;True;N�o
+168;;Chinelo Verde Claro (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:56:49;05/05/2026;20.0;True;N�o
+163;;Chinelo Verde Claro 35/36;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:57:08;05/05/2026;20.0;True;N�o
+52;;Chinelo Verde Claro 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:57:39;05/05/2026;20.0;True;N�o
+190;;Chinelo Verde Claro 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:57:59;05/05/2026;20.0;True;N�o
+193;;Chinelo Verde Claro 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:58:17;05/05/2026;20.0;True;N�o
+172;;Chinelo Verde Escuro (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:58:34;05/05/2026;20.0;True;N�o
+53;;Chinelo Verde Escuro 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:58:53;05/05/2026;20.0;True;N�o
+191;;Chinelo Verde Escuro 39/40;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:59:14;05/05/2026;20.0;True;N�o
+173;;Chinelo Vermelho (tira roxa) 33/34;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 15:59:35;05/05/2026;20.0;True;N�o
+177;;Chinelo Vermelho 37/38;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:00:01;05/05/2026;20.0;True;N�o
+198;;Chinelo Vermelho 41/42;;25.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:00:23;05/05/2026;20.0;True;N�o
+225;;Clips button 2,5cm;Alum�nio;4.0;;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+141;;Convite digital;;100.0;0.0;;Arte Digital;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+54;;Coqueteleira Shaker Preta;Pl�stico + adesivo de  recorte;20.0;9.0;Preta;Papelaria Criativa;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:00:56;05/05/2026;15.0;True;N�o
+136;;Coqueteleira Shaker Rosa;Pl�stico + adesivo de  recorte;20.0;3.0;Rosa;Papelaria Criativa;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:01:20;05/05/2026;15.0;True;N�o
+91;;Di�rio;+ capa dura + wire-o + 90 p�ginas pautadas + adesivos personalizados + saco canguru + tag + el�stico;90.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+234;;Di�rio de Interc�mbio A5;90 folhas pautadas + capa dura + wire-o;150.0;;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+81;;Enfeite de parede;;50.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+233;;Espelho Button 3,8cm;Alum�nio;9.0;0.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+57;;Guarda-Chuva;1,20m Tactel + haste dupla + cabo emborrachado;150.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+105;;�m� button de geladeira 3,8cm;alum�nio + �m�;5.0;0.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+142;;Impress�o Gr�fica;;0.0;0.0;;Gr�fica;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+135;;Kit 4 X�caras empilh�veis e Suporte de Metal;200 ml;150.0;1.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+235;;Kit Dia das M�es 2026;;110.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+100;;Kit tags personalizadas;tags plastificadas + furo com ilh�s (1 marca p�gina, 1 tag G, 2 tags M e 1 tag P);35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+205;;Lamina��o;;6.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+60;;Lixeira Para Carro;Neoprene;20.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:01:58;05/05/2026;15.0;True;N�o
+61;;M�scara Adulto;Poli�ster;10.0;35.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:02:22;05/05/2026;5.0;True;N�o
+63;;M�scara de Dormir Infantil;Neoprene;15.0;4.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:02:45;05/05/2026;10.0;True;N�o
+62;;M�scara Infantil;Poli�ster;10.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:03:04;05/05/2026;5.0;True;N�o
+65;;Moldura de Azulejo;MDF;20.0;4.0;15x15cm;N�o Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+66;;Mouse Pad Redondo;Neoprene + Tecido sem acabamento;20.0;9.0;Redondo;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:03:45;05/05/2026;15.0;True;N�o
+67;;Mouse Pad Retangular;Neoprene + Tecido sem acabamento;20.0;6.0;Retangular;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:04:01;05/05/2026;15.0;True;N�o
+215;;Outros;;0.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+158;;Pantufa Preta 35/36;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:04:25;05/05/2026;20.0;True;N�o
+160;;Pantufa Rosa 33/34;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:04:44;05/05/2026;20.0;True;N�o
+161;;Pantufa Vermelha 35/36;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:05:05;05/05/2026;20.0;True;N�o
+224;;Passaporte;;80.0;;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+69;;Porta Copos;Neoprene + tecido sem acabamento;3.8;10.0;Redondo;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+72;;Porta Espeto;MDF;45.0;6.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:05:26;05/05/2026;35.0;True;N�o
+70;;Porta Lata;Alum�nio + isopor;30.0;48.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+219;;Post-it;;25.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+74;;Quadrinho A4;MDF;35.0;2.0;A4;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:05:45;05/05/2026;25.0;True;N�o
+113;;Quadrinho de Papel 20x20;(valor pode variar);90.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+73;;Quadro Luminoso;MDF + Acr�lico + LED;100.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:06:12;05/05/2026;80.0;True;N�o
+77;;Quebra Cabe�a 12 pe�as 10x5cm;Papel�o;10.0;7.0;12 pe�as;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+76;;Quebra cabe�a 4 pe�as 5x5cm;PET;5.0;8.0;4 pe�as;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
+206;;Raspadinha A4;;30.0;0.0;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+214;;Recorte Cameo;;10.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+71;;Retrato Cora��o;MDF;34.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:06:52;05/05/2026;25.0;True;N�o
+78;;Sacola 47x35;PET;20.0;8.0;00x00cm;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:28:21;05/05/2026;15.0;True;N�o
+79;;Squeeze Bolinha Branca;Alum�nio + pl�stico (bico pl�stico retr�til);35.0;5.0;Branca;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;25/10/2022;25/10/2023;30.0;True;N�o
+82;;Suporte de Celular Premium;MDF;40.0;5.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:07:18;05/05/2026;30.0;True;N�o
+84;;T�bua de corte;Vidro;49.0;3.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:07:40;05/05/2026;35.0;True;N�o
+143;;Tags para lembran�as;;15.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+94;;Topo de Bolo;Temas diversos em Papel;50.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+93;;Topper de docinhos;;15.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+152;;Volta �s Aulas - Adesivos;;35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o

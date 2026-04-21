@@ -1,7 +1,7 @@
-Nome;D�bito / Cr�dito;Codigo;Observa��es;Data Nasc.;RG/I.E.;CPF / CNPJ;Endere�o;N�mero;Complemento;Bairro;Cidade;Estado;CEP;Sexo;Telefone;Celular;Tem D�bito;Email;Informa��es Extras;Pai;M�e;Status;PJ
+Nome;D�bito / Cr�dito;Cod_Cliente;Observa��es;Data Nasc.;RG/I.E.;CPF / CNPJ;Endere�o;N�mero;Complemento;Bairro;Cidade;Estado;CEP;Sexo;Telefone;Celular;Tem D�bito;Email;Informa��es Extras;Pai;M�e;Status;PJ
 A Casa do Tio Taylor;;147;;;;;Rua Torres Homem;366;;Embar�;Santos;SP;11025-021;;13 99110-6599;;FALSO;;;;;Ativo;VERDADEIRO
 Adriana Ramos;;5;;;;19938332854;Rua Maranh�o;35;ap 242;Jos� Menino;Santos;SP;11065-410;F;13997741920;;FALSO;;;;;Ativo;FALSO
-Affinity Log�stica Internacional Ltda;;11;;;;1,04524E+13;Rua Guaia�;66;cj 1402;Aparecida;Santos;SP;11035-260;M;;;FALSO;;;;;Ativo;VERDADEIRO
+Affinity Logística Internacional Ltda;;11;;;;1,04524E+13;Rua Guaia�;66;cj 1402;Aparecida;Santos;SP;11035-260;M;;;FALSO;;;;;Ativo;VERDADEIRO
 Afuse;;56;;;;;;;;;;;;M;;;FALSO;;;;;Ativo;FALSO
 AGENCIA MARITIMA GRANEL LTDA;;79;;;;54.477.377/0001-65;Rua General C�mara;141;cj 94;Centro;Santos;SP;11010-121;;;13 3228-6622;FALSO;;;;;Ativo;VERDADEIRO
 Alan Teixeira;;26;;;;;;;;;;;;M;13 - 99119.8581;;FALSO;;;;;Ativo;FALSO
