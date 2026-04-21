@@ -191,6 +191,13 @@ with aba_relatorio:
         resumo = df_f.groupby(['Cod.Venda', 'Data', 'Cliente', 'Tema'])['Total'].sum().reset_index().sort_values('Cod.Venda', ascending=False)
         for _, row in resumo.iterrows():
             with st.expander(f"📦 {row['Cod.Venda']} | {row['Cliente']} | {row['Tema']} | {formatar_br(row['Total'])}"):
-                st.table(df_f[df_f['Cod.Venda'] == row['Cod.Venda']][['Produto', 'Qtd', 'Total', 'Observacoes']])
+                # Filtramos os itens desta venda específica
+                detalhe_venda = df_f[df_f['Cod.Venda'] == row['Cod.Venda']].copy()
+                
+                # APLICANDO A FORMATAÇÃO NA COLUNA TOTAL:
+                detalhe_venda['Total'] = detalhe_venda['Total'].apply(formatar_br)
+                
+                # Exibindo a tabela com os valores formatados
+                st.table(detalhe_venda[['Produto', 'Qtd', 'Total', 'Observacoes']])
     else:
         st.info("Nenhuma venda encontrada.")
