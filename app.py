@@ -2,24 +2,15 @@ import streamlit as st
 import pandas as pd
 from datetime import datetime
 import os
-import sys
 import plotly.express as px
-
-def resource_path(relative_path):
-    """ Retorna o caminho absoluto para o recurso, funciona em dev e no PyInstaller """
-    try:
-        # O PyInstaller cria uma pasta temporária e armazena o caminho em _MEIPASS
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
+import io
+import zipfile
 
 # --- CONFIGURAÇÕES DE ARQUITETURA ---
 PASTA_DADOS = 'Dados'
-FILE_PRODUTOS = resource_path(os.path.join('Dados', 'Produtos.csv'))
-FILE_CLIENTES = resource_path(os.path.join(PASTA_DADOS, 'Clientes.csv'))
-FILE_VENDAS = resource_path(os.path.join(PASTA_DADOS, 'Vendas_Realizadas.csv'))
+FILE_PRODUTOS = os.path.join(PASTA_DADOS, 'Produtos.csv')
+FILE_CLIENTES = os.path.join(PASTA_DADOS, 'Clientes.csv')
+FILE_VENDAS = os.path.join(PASTA_DADOS, 'Vendas_Realizadas.csv')
 SEPARADOR = ';'
 
 st.set_page_config(page_title="Gestão de Vendas Frui Partis", layout="wide")
@@ -31,6 +22,15 @@ if 'reset_key' not in st.session_state:
     st.session_state.reset_key = 0
 if 'editor_key_seed' not in st.session_state:
     st.session_state.editor_key_seed = 0
+
+def preparar_download_dados():
+    """Lê os arquivos do servidor e cria um arquivo ZIP na memória."""
+    buf = io.BytesIO()
+    with zipfile.ZipFile(buf, "x") as csv_zip:
+        for file in [FILE_PRODUTOS, FILE_CLIENTES, FILE_VENDAS]:
+            if os.path.exists(file):
+                csv_zip.write(file, arcname=os.path.basename(file))
+    return buf.getvalue()
 
 def carregar_dados():
     df_p = pd.read_csv(FILE_PRODUTOS, sep=SEPARADOR, dtype={'Codigo': str, 'Status': bool})
@@ -165,6 +165,19 @@ with aba_gestao:
 # --- ABA 3: RELATÓRIOS ---
 with aba_relatorio:
     st.subheader("Análise de Resultados")
+    
+    # --- NOVO: SEÇÃO DE BACKUP ---
+    with st.expander("💾 Exportar Backup de Dados"):
+        st.write("Baixe uma cópia dos arquivos CSV atuais do servidor.")
+        dados_zip = preparar_download_dados()
+        st.download_button(
+            label="📥 Baixar todos os CSVs (.zip)",
+            data=dados_zip,
+            file_name=f"backup_frui_partis_{datetime.now().strftime('%Y%m%d_%H%M')}.zip",
+            mime="application/zip",
+            width='stretch'
+        )
+    st.divider()
     
     if os.path.exists(FILE_VENDAS):
         df_v = pd.read_csv(FILE_VENDAS, sep=SEPARADOR, dtype={'Cod.Produto': str})
