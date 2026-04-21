@@ -1,4 +1,3 @@
-Cod.Venda;Data;Cod_Cliente;Tema;Cod_Produto;Qtd;Total;Observacoes
-1;21/04/2026 11:20:03;147;aniversário da escola;101;1;55.0;Adesivos para brindes
-1;21/04/2026 11:20:03;147;aniversário da escola;98;1;5.2;Adesivos para a festa
-2;21/04/2026 11:21:07;11;festa da empresa;98;1;5.2;Adesivos para a festa
+Cod.Venda;Data;Cod_Cliente;Tema;Cod_Produto;Qtd;Vlr_Unitario_Produto;Desconto_Item;Total;Observacoes
+1;21/04/2026 12:38:37;147;aniversário;218;1;95.0;5.0;90.25;agenda da escola
+1;21/04/2026 12:38:37;147;aniversário;101;2;55.0;10.0;99.0;adesivos escola
