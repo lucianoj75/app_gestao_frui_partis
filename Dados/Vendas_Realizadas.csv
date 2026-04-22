@@ -1,3 +1,8 @@
 Cod.Venda;Data;Cod_Cliente;Tema;Cod_Produto;Qtd;Vlr_Unitario_Produto;Desconto_Item;Total;Observacoes
 1;21/04/2026 12:38:37;147;aniversário;218;1;95.0;5.0;90.25;agenda da escola
 1;21/04/2026 12:38:37;147;aniversário;101;2;55.0;10.0;99.0;adesivos escola
+2;21/04/2026 20:07:00;201;Tema;98;1;5.2;10.0;4.680000000000001;
+2;21/04/2026 20:07:00;201;Tema;98;1;5.2;0.0;5.2;
+3;21/04/2026 20:40:38;79;festa;98;1;5.2;0.0;5.2;"obs1
+obs2"
+4;21/04/2026 21:03:03;200;xxx;236;1;13.0;1.0;12.87;

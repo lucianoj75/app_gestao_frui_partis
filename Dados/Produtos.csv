@@ -1,7 +1,7 @@
 Cod_Produto;Imagem;Nome;Observações;Preço;Estoque Atual;Código Extra;Categoria;Sub Categoria;Unidade;Fornecedor Principal;Código Ref.;Marca;Estoque Min.;Estoque Max.;Promoção;Data Inicial;Data Final;Preço Promocional;Status;Kit / Combo
 90;;Álbum de Figurinhas;Temas diversos. Contém álbum de 15x15cm com 8 páginas e 25 figurinhas em 5 pacotinhos.;110.0;0.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
 101;;Adesivo grande escala;;55.0;5.0;;Plottagem;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
-98;;Adesivo Papel;Corte Personalizado;20.0;11.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;5.2;True;N�o
+98;;Adesivo Papel;Corte Personalizado;20.0;8.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;5.2;True;N�o
 97;;Adesivo vinil A4;cortes personalizados;35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 207;;Agenda de bolso;;45.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 218;;Agenda semanal grande;;95.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
@@ -152,7 +152,7 @@ Cod_Produto;Imagem;Nome;Observações;Preço;Estoque Atual;Código Extra;Categor
 233;;Espelho Button 3,8cm;Alum�nio;9.0;0.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
 57;;Guarda-Chuva;1,20m Tactel + haste dupla + cabo emborrachado;150.0;1.0;;Brinde Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
 105;;�m� button de geladeira 3,8cm;alum�nio + �m�;5.0;0.0;;Papelaria Criativa;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
-142;;Impress�o Gr�fica;;0.0;0.0;;Gr�fica;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+142;;Impress�o Gr�fica;;1.0;0.0;;Gr�fica;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 135;;Kit 4 X�caras empilh�veis e Suporte de Metal;200 ml;150.0;1.0;;Caneca;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
 235;;Kit Dia das M�es 2026;;110.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 100;;Kit tags personalizadas;tags plastificadas + furo com ilh�s (1 marca p�gina, 1 tag G, 2 tags M e 1 tag P);35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
@@ -164,7 +164,6 @@ Cod_Produto;Imagem;Nome;Observações;Preço;Estoque Atual;Código Extra;Categor
 65;;Moldura de Azulejo;MDF;20.0;4.0;15x15cm;N�o Personalizado;;Pe�a;;;;0.0;0.0;NAO;;;0.0;True;N�o
 66;;Mouse Pad Redondo;Neoprene + Tecido sem acabamento;20.0;9.0;Redondo;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:03:45;05/05/2026;15.0;True;N�o
 67;;Mouse Pad Retangular;Neoprene + Tecido sem acabamento;20.0;6.0;Retangular;Brinde Personalizado;;Pe�a;;;;0.0;0.0;SIM;05/03/2026 16:04:01;05/05/2026;15.0;True;N�o
-215;;Outros;;0.0;;;;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 158;;Pantufa Preta 35/36;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:04:25;05/05/2026;20.0;True;N�o
 160;;Pantufa Rosa 33/34;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:04:44;05/05/2026;20.0;True;N�o
 161;;Pantufa Vermelha 35/36;;25.0;1.0;;Brinde Personalizado;;;;;;0.0;0.0;SIM;05/03/2026 16:05:05;05/05/2026;20.0;True;N�o
@@ -189,3 +188,5 @@ Cod_Produto;Imagem;Nome;Observações;Preço;Estoque Atual;Código Extra;Categor
 94;;Topo de Bolo;Temas diversos em Papel;50.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 93;;Topper de docinhos;;15.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
 152;;Volta �s Aulas - Adesivos;;35.0;0.0;;Papelaria Criativa;;;;;;0.0;0.0;NAO;;;0.0;True;N�o
+236;;Novo produto;;13.0;9.0;;;;Peça;;;;0.0;0.0;NAO;;;0.0;True;Não
+237;;produto novo;;11.0;;;;;;;;;;;;;;;True;
