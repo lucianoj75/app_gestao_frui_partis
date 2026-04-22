@@ -14,10 +14,20 @@ SEPARADOR = ';'
 
 st.set_page_config(page_title="Gestão de Vendas Frui Partis", layout="wide")
 
-# --- FUNÇÕES DE CARREGAMENTO COM CACHE ---
+# --- 1. INICIALIZAÇÃO DO ESTADO (PREVENÇÃO DE KEYERROR) ---
+if 'p_key' not in st.session_state: st.session_state.p_key = 0
+if 'c_key' not in st.session_state: st.session_state.c_key = 0
+if 'carrinho' not in st.session_state: st.session_state.carrinho = []
+if 'reset_venda_key' not in st.session_state: st.session_state.reset_venda_key = 0
+if 'reset_prod_sel_key' not in st.session_state: st.session_state.reset_prod_sel_key = 0
+
+# --- FUNÇÕES DE CARREGAMENTO ---
 @st.cache_data(ttl=600)
 def carregar_estoque():
-    return pd.read_csv(FILE_PRODUTOS, sep=SEPARADOR, dtype={'Status': bool})
+    df = pd.read_csv(FILE_PRODUTOS, sep=SEPARADOR)
+    if 'Status' in df.columns:
+        df['Status'] = df['Status'].map({'True': True, 'False': False, True: True, False: False}).fillna(True)
+    return df
 
 @st.cache_data(ttl=600)
 def carregar_clientes():
@@ -28,40 +38,70 @@ def carregar_vendas():
         return pd.read_csv(FILE_VENDAS, sep=SEPARADOR)
     return pd.DataFrame()
 
-# --- INICIALIZAÇÃO DO ESTADO ---
-if 'carrinho' not in st.session_state:
-    st.session_state.carrinho = []
-if 'reset_produto_key' not in st.session_state:
-    st.session_state.reset_produto_key = 0
-if 'reset_venda_key' not in st.session_state:
-    st.session_state.reset_venda_key = 0
-if 'editor_p_key' not in st.session_state:
-    st.session_state.editor_p_key = 0
-if 'editor_c_key' not in st.session_state:
-    st.session_state.editor_c_key = 0
+# --- LÓGICA DE VALIDAÇÃO E SALVAMENTO ENXUTA ---
+def processar_salvamento(df_editado, coluna_id, caminho_arquivo, tipo_entidade):
+    df_final = df_editado.copy()
+    
+    # Limpeza básica: remove linhas onde o Nome está totalmente vazio
+    if 'Nome' in df_final.columns:
+        df_final = df_final[df_final['Nome'].fillna('').str.strip() != ""]
+
+    if tipo_entidade == "PRODUTOS":
+        # Se o Estoque Atual não for informado, grava zero como valor default
+        if 'Estoque Atual' in df_final.columns:
+            df_final['Estoque Atual'] = df_final['Estoque Atual'].fillna(0)
+            
+        # Converte Preço para numérico (o que não for número vira NaN)
+        df_final['Preço'] = pd.to_numeric(df_final['Preço'], errors='coerce')
+        
+        # Validação funcional: Verifica se existe algum preço inválido (NaN ou <= 0)
+        if df_final['Preço'].isna().any() or (df_final['Preço'] <= 0).any():
+            st.error("Erro: Todos os produtos ativos devem ter um 'Preço' válido e maior que zero.")
+            return False
+            
+    elif tipo_entidade == "CLIENTES":
+        if 'Tipo_Pessoa' in df_final.columns:
+            df_final['Tipo_Pessoa'] = df_final['Tipo_Pessoa'].str.upper().str.strip()
+            if not df_final['Tipo_Pessoa'].isin(['PF', 'PJ']).all():
+                st.error("Erro: O campo 'Tipo_Pessoa' deve ser PF ou PJ.")
+                return False
+
+    # Auto-incremento de IDs
+    mask_novos = df_final[coluna_id].isna()
+    if mask_novos.any():
+        ultimo_id = pd.to_numeric(df_final[coluna_id], errors='coerce').max()
+        if pd.isna(ultimo_id): ultimo_id = 0
+        novos_ids = range(int(ultimo_id) + 1, int(ultimo_id) + 1 + mask_novos.sum())
+        df_final.loc[mask_novos, coluna_id] = list(novos_ids)
+    
+    df_final[coluna_id] = df_final[coluna_id].astype(int)
+    df_final.to_csv(caminho_arquivo, index=False, sep=SEPARADOR)
+    st.cache_data.clear()
+    return True
 
 # --- CARREGAMENTO INICIAL ---
 df_p = carregar_estoque()
 df_c = carregar_clientes()
 df_v = carregar_vendas()
 
-# Tratamento de preços para cálculos
-df_p['Preço'] = pd.to_numeric(df_p['Preço'], errors='coerce').fillna(0.0)
-df_p['Preço Promocional'] = pd.to_numeric(df_p['Preço Promocional'], errors='coerce').fillna(0.0)
-
-# --- FUNÇÕES AUXILIARES ---
+# --- AUXILIARES ---
 def formatar_br(valor):
-    return f"R$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    try:
+        return f"R$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except:
+        return valor
 
 def formatar_markdown_br(valor):
-    return f"R\\$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    try:
+        return f"R\\$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except:
+        return valor
 
 def preparar_download_dados():
     buf = io.BytesIO()
     with zipfile.ZipFile(buf, "x") as csv_zip:
-        for file in [FILE_PRODUTOS, FILE_CLIENTES, FILE_VENDAS]:
-            if os.path.exists(file):
-                csv_zip.write(file, arcname=os.path.basename(file))
+        for f in [FILE_PRODUTOS, FILE_CLIENTES, FILE_VENDAS]:
+            if os.path.exists(f): csv_zip.write(f, arcname=os.path.basename(f))
     return buf.getvalue()
 
 # --- INTERFACE ---
@@ -72,167 +112,125 @@ aba_venda, aba_gestao_p, aba_gestao_c, aba_relatorio = st.tabs([
 # --- ABA 1: REGISTRAR VENDA ---
 with aba_venda:
     st.subheader("Nova Venda")
-    
-    col_v1, col_v2 = st.columns(2)
-    with col_v1:
-        nome_cli = st.selectbox("Selecione o Cliente", df_c['Nome'].unique(), key=f"cli_{st.session_state.reset_venda_key}")
-        cod_cli = df_c[df_c['Nome'] == nome_cli]['Cod_Cliente'].values[0]
-    with col_v2:
-        tema_venda = st.text_input("Tema da Venda", key=f"tema_{st.session_state.reset_venda_key}")
-    
-    st.divider()
-    
-    df_p_ativos = df_p[df_p['Status'] == True].copy()
-    
-    with st.container(border=True):
-        c1, c2 = st.columns([3, 1])
-        with c1:
-            nome_p = st.selectbox("Escolha o Produto", df_p_ativos['Nome'].unique(), key=f"p_sel_{st.session_state.reset_produto_key}")
-            dados_p = df_p_ativos[df_p_ativos['Nome'] == nome_p].iloc[0]
-            cod_p, estoque_p = dados_p['Cod_Produto'], float(dados_p['Estoque Atual'])
-            p_base, p_promo = float(dados_p['Preço']), float(dados_p['Preço Promocional'])
-            
-            qtd_car = sum(item['Qtd'] for item in st.session_state.carrinho if item['Cod_Produto'] == cod_p)
-            disp = estoque_p - qtd_car
-            
-            info_txt = f"**Cód:** {cod_p} | **Preço:** {formatar_markdown_br(p_base)} | **Estoque:** {int(disp)}"
-            if p_promo > 0: info_txt += f" | 🔥 **PROMOÇÃO: {formatar_markdown_br(p_promo)}**"
-            st.markdown(info_txt)
-        with c2:
-            max_v = int(disp) if disp > 0 else 1
-            qtd_v = st.number_input("Qtd", min_value=1, max_value=max_v, step=1, key=f"q_{st.session_state.reset_produto_key}")
-
-        obs_item = st.text_area("Observações do Produto", height=70, key=f"o_{st.session_state.reset_produto_key}")
+    if not df_c.empty and not df_p.empty:
+        c_v1, c_v2 = st.columns(2)
+        with c_v1:
+            nome_cli = st.selectbox("Cliente", sorted(df_c['Nome'].unique()), key=f"cli_{st.session_state.reset_venda_key}")
+            cod_cli = df_c[df_c['Nome'] == nome_cli]['Cod_Cliente'].values[0]
+        with c_v2:
+            tema_v = st.text_input("Tema da Venda", key=f"tema_{st.session_state.reset_venda_key}")
         
-        if st.button("➕ Adicionar ao Carrinho", width='stretch'):
-            if disp >= qtd_v:
-                preco_final = p_promo if p_promo > 0 else p_base
-                st.session_state.carrinho.append({
-                    'Cod_Produto': cod_p, 'Produto': nome_p, 'Qtd': qtd_v,
-                    'Preço Un.': preco_final, 'Desconto %': 0.0, 
-                    'Total': qtd_v * preco_final, 'Observacoes': obs_item
-                })
-                st.session_state.reset_produto_key += 1
-                st.rerun()
+        st.divider()
+        df_p_ativos = df_p[df_p['Status'] == True].copy()
+        
+        with st.container(border=True):
+            col1, col2 = st.columns([3, 1])
+            with col1:
+                nome_p = st.selectbox("Selecione o Produto", sorted(df_p_ativos['Nome'].unique()), key=f"p_s_{st.session_state.reset_prod_sel_key}")
+                d_p = df_p_ativos[df_p_ativos['Nome'] == nome_p].iloc[0]
+                disp = float(d_p['Estoque Atual']) - sum(i['Qtd'] for i in st.session_state.carrinho if i['Cod_Produto'] == d_p['Cod_Produto'])
+                p_venda = float(d_p['Preço Promocional']) if float(d_p['Preço Promocional']) > 0 else float(d_p['Preço'])
+                st.markdown(f"**Preço:** {formatar_markdown_br(p_venda)} | **Estoque Disponível:** {int(disp)}")
+            with col2:
+                qtd_v = st.number_input("Qtd", min_value=1, max_value=int(disp) if disp > 0 else 1, key=f"q_{st.session_state.reset_prod_sel_key}")
+            
+            obs_v = st.text_area("Observações do Item", key=f"obs_{st.session_state.reset_prod_sel_key}", height=70)
+            
+            if st.button("➕ Adicionar ao Carrinho", width='stretch'):
+                if disp >= qtd_v:
+                    st.session_state.carrinho.append({
+                        'Cod_Produto': d_p['Cod_Produto'], 'Produto': nome_p, 'Qtd': qtd_v,
+                        'Preço Un.': p_venda, 'Desconto %': 0.0, 'Total': qtd_v * p_venda, 'Observacoes': obs_v
+                    })
+                    st.session_state.reset_prod_sel_key += 1
+                    st.rerun()
 
     if st.session_state.carrinho:
-        st.markdown("### 🛒 Itens no Carrinho")
+        st.markdown("### 🛒 Carrinho")
         df_cart = pd.DataFrame(st.session_state.carrinho)
+        ed_cart = st.data_editor(df_cart, hide_index=True, width='stretch', column_config={
+            "Cod_Produto": None, 
+            "Preço Un.": st.column_config.NumberColumn(format="R$ %.2f", disabled=True),
+            "Desconto %": st.column_config.NumberColumn(format="%.1f%%", min_value=0.0, max_value=100.0),
+            "Total": st.column_config.NumberColumn(format="R$ %.2f", disabled=True)
+        }, key=f"ed_cart_{st.session_state.reset_venda_key}")
         
-        df_editado = st.data_editor(
-            df_cart,
-            column_config={
-                "Cod_Produto": None,
-                "Produto": st.column_config.TextColumn("Produto", disabled=True),
-                "Qtd": st.column_config.NumberColumn("Qtd", disabled=True),
-                "Preço Un.": st.column_config.NumberColumn("Preço Un.", format="R$ %.2f", disabled=True),
-                "Desconto %": st.column_config.NumberColumn("Desconto (%)", min_value=0.0, max_value=100.0, step=0.5, format="%.1f%%"),
-                "Total": st.column_config.NumberColumn("Total Item", format="R$ %.2f", disabled=True),
-                "Observacoes": st.column_config.TextColumn("Observações")
-            },
-            hide_index=True, width='stretch', key=f"ed_cart_{st.session_state.reset_venda_key}"
-        )
-
-        df_editado['Total'] = (df_editado['Qtd'] * df_editado['Preço Un.']) * (1 - df_editado['Desconto %'] / 100)
-        total_venda = df_editado['Total'].sum()
+        ed_cart['Total'] = (ed_cart['Qtd'] * ed_cart['Preço Un.']) * (1 - ed_cart['Desconto %'] / 100)
+        total_final = ed_cart['Total'].sum()
+        st.metric("Total Líquido", formatar_br(total_final))
         
-        c_tot1, c_tot2 = st.columns([2, 1])
-        with c_tot2:
-            st.metric("Total Líquido da Venda", formatar_br(total_venda))
-
         if st.button("✅ Finalizar Venda", type="primary", width='stretch'):
-            cod_v = int(df_v['Cod.Venda'].max()) + 1 if not df_v.empty else 1
-            dt_v = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-            
-            novas = []
-            for _, item in df_editado.iterrows():
+            cv = int(df_v['Cod.Venda'].max()) + 1 if not df_v.empty else 1
+            dt = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+            novas_linhas = []
+            for _, item in ed_cart.iterrows():
                 idx = df_p[df_p['Cod_Produto'] == item['Cod_Produto']].index[0]
                 df_p.at[idx, 'Estoque Atual'] -= item['Qtd']
-                novas.append({
-                    'Cod.Venda': cod_v, 'Data': dt_v, 'Cod_Cliente': cod_cli, 
-                    'Tema': str(tema_venda), 'Cod_Produto': item['Cod_Produto'], 
-                    'Qtd': item['Qtd'], 'Vlr_Unitario_Produto': item['Preço Un.'],
-                    'Desconto_Item': item['Desconto %'], 'Total': item['Total'], 
-                    'Observacoes': item['Observacoes']
+                novas_linhas.append({
+                    'Cod.Venda': cv, 'Data': dt, 'Cod_Cliente': cod_cli, 'Tema': tema_v,
+                    'Cod_Produto': item['Cod_Produto'], 'Qtd': item['Qtd'], 
+                    'Vlr_Unitario_Produto': item['Preço Un.'], 'Desconto_Item': item['Desconto %'],
+                    'Total': item['Total'], 'Observacoes': item['Observacoes']
                 })
-            
             df_p.to_csv(FILE_PRODUTOS, index=False, sep=SEPARADOR)
-            pd.concat([df_v, pd.DataFrame(novas)], ignore_index=True).to_csv(FILE_VENDAS, index=False, sep=SEPARADOR)
-            
-            st.cache_data.clear()
+            pd.concat([df_v, pd.DataFrame(novas_linhas)], ignore_index=True).to_csv(FILE_VENDAS, index=False, sep=SEPARADOR)
             st.session_state.carrinho = []
             st.session_state.reset_venda_key += 1
-            st.session_state.reset_produto_key += 1
-            st.success("Venda registrada!")
+            st.cache_data.clear()
+            st.success("Venda registrada com sucesso!")
             st.rerun()
 
 # --- ABA 2: GESTÃO DE PRODUTOS ---
 with aba_gestao_p:
-    st.subheader("Painel de Produtos")
-    p_key = f"ed_p_{st.session_state.editor_p_key}"
-    df_res_p = st.data_editor(df_p, hide_index=True, width='stretch', key=p_key)
+    st.subheader("📋 Gestão de Produtos")
+    st.caption("Insira o Nome e o Preço para salvar novos itens.")
+    res_p = st.data_editor(df_p, hide_index=True, num_rows="dynamic", width='stretch', key=f"p_ed_{st.session_state.p_key}",
+        column_config={
+            "Cod_Produto": st.column_config.NumberColumn("ID", disabled=True, format="%d"),
+            "Status": st.column_config.CheckboxColumn("Ativo", default=True),
+            "Preço": st.column_config.NumberColumn("Preço", format="%.2f", min_value=0.01),
+            "Estoque Atual": st.column_config.NumberColumn("Estoque Atual", format="%d")
+        })
     if st.button("💾 Salvar Alterações de Produtos", width='stretch'):
-        df_res_p.to_csv(FILE_PRODUTOS, index=False, sep=SEPARADOR)
-        st.cache_data.clear()
-        st.session_state.editor_p_key += 1
-        st.rerun()
+        if processar_salvamento(res_p, "Cod_Produto", FILE_PRODUTOS, "PRODUTOS"):
+            st.session_state.p_key += 1
+            st.rerun()
 
 # --- ABA 3: GESTÃO DE CLIENTES ---
 with aba_gestao_c:
-    st.subheader("Painel de Clientes")
-    c_key = f"ed_c_{st.session_state.editor_c_key}"
-    
-    # Exibição editável baseada na estrutura de Clientes.csv (protegendo apenas o código)
-    df_res_c = st.data_editor(
-        df_c, 
-        hide_index=True, 
-        width='stretch', 
-        key=c_key,
+    st.subheader("👥 Gestão de Clientes")
+    res_c = st.data_editor(df_c, hide_index=True, num_rows="dynamic", width='stretch', key=f"c_ed_{st.session_state.c_key}",
         column_config={
-            "Cod_Cliente": st.column_config.TextColumn("Cód. Cliente", disabled=True)
-        }
-    )
-    
+            "Cod_Cliente": st.column_config.NumberColumn("ID", disabled=True, format="%d"),
+            "Tipo_Pessoa": st.column_config.SelectboxColumn("Tipo_Pessoa", options=["PF", "PJ"]),
+            "Sexo": st.column_config.SelectboxColumn("Sexo", options=["M", "F", "O", "NA", ""])
+        })
     if st.button("💾 Salvar Alterações de Clientes", width='stretch'):
-        df_res_c.to_csv(FILE_CLIENTES, index=False, sep=SEPARADOR)
-        st.cache_data.clear() # Atualiza os selectboxes da aba de venda
-        st.session_state.editor_c_key += 1
-        st.rerun()
+        if processar_salvamento(res_c, "Cod_Cliente", FILE_CLIENTES, "CLIENTES"):
+            st.session_state.c_key += 1
+            st.rerun()
 
 # --- ABA 4: RELATÓRIOS ---
 with aba_relatorio:
-    st.subheader("Análise de Resultados")
-    with st.expander("💾 Backup"):
-        st.download_button("📥 Baixar CSVs", data=preparar_download_dados(), file_name="backup.zip", width='stretch')
+    st.subheader("📈 Histórico e Relatórios")
+    st.download_button("📥 Baixar Backup (ZIP)", data=preparar_download_dados(), file_name="backup_fruipartis.zip")
     
     if not df_v.empty:
-        df_display = df_v.merge(df_c[['Cod_Cliente', 'Nome']], on='Cod_Cliente', how='left').rename(columns={'Nome': 'Cliente'})
-        df_display = df_display.merge(df_p[['Cod_Produto', 'Nome']], on='Cod_Produto', how='left').rename(columns={'Nome': 'Produto'})
+        df_rep = df_v.merge(df_c[['Cod_Cliente', 'Nome']], on='Cod_Cliente', how='left').rename(columns={'Nome': 'Cliente'})
+        df_rep = df_rep.merge(df_p[['Cod_Produto', 'Nome']], on='Cod_Produto', how='left').rename(columns={'Nome': 'Produto'})
         
-        c1, c2 = st.columns([2, 1])
-        with c1: f_cli = st.multiselect("Filtrar Cliente", options=sorted(df_display['Cliente'].unique()))
-        with c2: b_tema = st.text_input("Busca Tema/Cliente")
+        st.metric("Faturamento Total", formatar_br(df_rep['Total'].sum()))
         
-        df_f = df_display.copy()
-        if f_cli: df_f = df_f[df_f['Cliente'].isin(f_cli)]
-        if b_tema: df_f = df_f[df_f['Tema'].str.contains(b_tema, case=False, na=False) | df_f['Cliente'].str.contains(b_tema, case=False, na=False)]
+        vendas_resumo = df_rep.groupby(['Cod.Venda', 'Data', 'Cliente', 'Tema'])['Total'].sum().reset_index().sort_values('Cod.Venda', ascending=False)
         
-        k1, k2 = st.columns(2)
-        k1.metric("Faturamento", formatar_br(df_f['Total'].sum()))
-        k2.metric("Vendas", df_f['Cod.Venda'].nunique())
-        
-        resumo = df_f.groupby(['Cod.Venda', 'Data', 'Cliente', 'Tema'])['Total'].sum().reset_index().sort_values('Cod.Venda', ascending=False)
-        for _, row in resumo.iterrows():
-            with st.expander(f"📦 {row['Cod.Venda']} | {row['Cliente']} | {row['Tema']} | {formatar_br(row['Total'])}"):
-                detalhe = df_f[df_f['Cod.Venda'] == row['Cod.Venda']].copy()
-                
-                if 'Vlr_Unitario_Produto' in detalhe.columns:
-                    detalhe['Vlr.Un.'] = detalhe['Vlr_Unitario_Produto'].apply(formatar_br)
-                detalhe['Total'] = detalhe['Total'].apply(formatar_br)
-                if 'Desconto_Item' in detalhe.columns:
-                    detalhe['Desconto'] = detalhe['Desconto_Item'].apply(lambda x: f"{x:.1f}%")
-                
-                col_view = ['Produto', 'Qtd', 'Vlr.Un.', 'Desconto', 'Total', 'Observacoes']
-                st.table(detalhe[[c for c in col_view if c in detalhe.columns]])
+        for _, row in vendas_resumo.iterrows():
+            # Exibe: Venda ID | Data | Cliente | Tema | Valor Total
+            header_venda = f"Venda {row['Cod.Venda']} | {row['Data']} | {row['Cliente']} | {row['Tema']} | {formatar_br(row['Total'])}"
+            with st.expander(header_venda):
+                itens = df_rep[df_rep['Cod.Venda'] == row['Cod.Venda']].copy()
+                itens['Vlr. Unitário'] = itens['Vlr_Unitario_Produto'].apply(formatar_br)
+                itens['Desconto (%)'] = itens['Desconto_Item'].apply(lambda x: f"{x}%")
+                itens['Vlr. Total'] = itens['Total'].apply(formatar_br)
+                st.table(itens[['Produto', 'Qtd', 'Vlr. Unitário', 'Desconto (%)', 'Vlr. Total', 'Observacoes']])
     else:
-        st.info("Nenhuma venda encontrada.")
+        st.info("Nenhuma venda realizada ainda.")
