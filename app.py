@@ -287,8 +287,8 @@ def preparar_download_dados():
     return buf.getvalue()
 
 # --- INTERFACE ---
-aba_venda, aba_gestao_p, aba_gestao_c, aba_relatorio = st.tabs([
-    "🛒 Registrar Venda", "📋 Gestão de Produtos", "👥 Gestão de Clientes", "📈 Relatórios"
+aba_venda, aba_relatorio, aba_gestao_c, aba_gestao_p = st.tabs([
+    "🛒 Registrar Venda", "📈 Relatórios", "👥 Gestão de Clientes", "📋 Gestão de Produtos"
 ])
 
 # --- ABA 1: REGISTRAR VENDA ---
@@ -341,10 +341,11 @@ with aba_venda:
                 with col1:
                     d_p = df_p_ativos[df_p_ativos['Nome'] == nome_p].iloc[0]
                     disp = float(d_p['Estoque Atual']) - sum(i['Qtd'] for i in st.session_state.carrinho if i['Cod_Produto'] == d_p['Cod_Produto'])
-                    p_venda = float(d_p.get('Preco_Promocional', 0)) if float(d_p.get('Preco_Promocional', 0)) > 0 else float(d_p.get('Preco', 0))
-                    st.markdown(f"**Preço:** {formatar_markdown_br(p_venda)} | **Estoque Disponível:** {int(disp)}")
+                    p_venda_base = float(d_p.get('Preco_Promocional', 0)) if float(d_p.get('Preco_Promocional', 0)) > 0 else float(d_p.get('Preco', 0))
+                    st.markdown(f"**Estoque Disponível:** {int(disp)}")
                 with col2:
                     qtd_v = st.number_input("Qtd", min_value=1, key=f"q_{st.session_state.reset_prod_sel_key}")
+                p_venda = st.number_input("Valor de Venda (R$)", min_value=0.01, value=p_venda_base, step=0.01, format="%.2f", key=f"preco_{st.session_state.reset_prod_sel_key}")
                 obs_v = st.text_area("Observações do Item", key=f"obs_{st.session_state.reset_prod_sel_key}", height=70)
 
                 if st.button("➕ Adicionar ao Carrinho", width='stretch'):
@@ -454,86 +455,179 @@ with aba_gestao_c:
 with aba_relatorio:
     st.subheader("📈 Histórico e Relatórios")
     st.download_button("📥 Baixar Banco de Dados", data=preparar_download_dados(), file_name="backup_fruipartis.zip")
+
+    sub_vendas, sub_mensal, sub_top = st.tabs(["🧾 Vendas", "📅 Faturamento Mensal", "🏆 Top 10 Produtos"])
+
     if df_v is not None and not df_v.empty:
-        # Enriquecer com nomes de cliente e produto
+        # Enriquecer com nomes de cliente e produto (compartilhado entre sub-abas)
         df_rep = df_v.merge(df_c[['Cod_Cliente', 'Nome']], on='Cod_Cliente', how='left').rename(columns={'Nome': 'Cliente'})
         df_rep = df_rep.merge(df_p[['Cod_Produto', 'Nome']], on='Cod_Produto', how='left').rename(columns={'Nome': 'Produto'})
 
-        # Resumo por venda (cabeçalho)
-        vendas_cab = df_rep.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Cliente', 'Tema', 'Total', 'Vlr_Pago']].sort_values('Cod_Venda', ascending=False)
-
-        # Converter Data para datetime para filtro
-        vendas_cab['Data_dt'] = pd.to_datetime(vendas_cab['Data'], dayfirst=True, errors='coerce')
-        data_min = vendas_cab['Data_dt'].min().date()
-        data_max = vendas_cab['Data_dt'].max().date()
-
-        # Inicializar valor de data padrão
-        if st.session_state.filtro_data_val is None:
-            st.session_state.filtro_data_val = (data_min, data_max)
-
-        # --- FILTROS ---
-        with st.expander("🔍 Filtros", expanded=False):
-            f1, f2, f3 = st.columns(3)
-            with f1:
-                clientes_opcoes = ["Todos"] + sorted(vendas_cab['Cliente'].dropna().unique().tolist())
-                idx_cli = clientes_opcoes.index(st.session_state.filtro_cliente_val) if st.session_state.filtro_cliente_val in clientes_opcoes else 0
-                filtro_cliente = st.selectbox("Cliente", clientes_opcoes, index=idx_cli)
-            with f2:
-                filtro_data = st.date_input("Intervalo de Data", value=st.session_state.filtro_data_val)
-            with f3:
-                filtro_pendente = st.checkbox("Somente com valor pendente", value=st.session_state.filtro_pendente_val)
-
-            fb1, fb2 = st.columns(2)
-            with fb1:
-                btn_filtrar = st.button("🔍 Filtrar", type="primary", width='stretch')
-            with fb2:
-                btn_limpar = st.button("🗑️ Limpar Filtros", width='stretch')
-
-        if btn_limpar:
-            st.session_state.filtro_cliente_val = "Todos"
-            st.session_state.filtro_data_val = (data_min, data_max)
-            st.session_state.filtro_pendente_val = False
-            st.session_state.filtros_aplicados = False
-            st.rerun()
-
-        if btn_filtrar:
-            if isinstance(filtro_data, tuple) and len(filtro_data) == 2:
-                diff = (filtro_data[1] - filtro_data[0]).days
-                if diff > 31:
-                    st.error("O intervalo de datas não pode ser maior que 31 dias.")
-                else:
-                    st.session_state.filtro_cliente_val = filtro_cliente
-                    st.session_state.filtro_data_val = filtro_data
-                    st.session_state.filtro_pendente_val = filtro_pendente
-                    st.session_state.filtros_aplicados = True
-                    st.rerun()
-            else:
-                st.error("Selecione um intervalo de datas válido (data inicial e data final).")
-
-        # Aplicar filtros salvos no session_state
-        vendas_filtradas = vendas_cab.copy()
-        if st.session_state.filtros_aplicados:
-            if st.session_state.filtro_cliente_val != "Todos":
-                vendas_filtradas = vendas_filtradas[vendas_filtradas['Cliente'] == st.session_state.filtro_cliente_val]
-            if isinstance(st.session_state.filtro_data_val, tuple) and len(st.session_state.filtro_data_val) == 2:
-                d_ini = pd.Timestamp(st.session_state.filtro_data_val[0])
-                d_fim = pd.Timestamp(st.session_state.filtro_data_val[1]) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
-                vendas_filtradas = vendas_filtradas[(vendas_filtradas['Data_dt'] >= d_ini) & (vendas_filtradas['Data_dt'] <= d_fim)]
-            if st.session_state.filtro_pendente_val:
-                vendas_filtradas = vendas_filtradas[(vendas_filtradas['Vlr_Pago'] - vendas_filtradas['Total']).abs() > 0.001]
-
-        st.metric("Faturamento Total", formatar_br(vendas_filtradas['Total'].sum()))
-
-        if vendas_filtradas.empty:
-            st.info("Nenhuma venda encontrada com os filtros selecionados.")
+    # --- SUB-ABA: VENDAS ---
+    with sub_vendas:
+        if df_v is None or df_v.empty:
+            st.info("Nenhuma venda registrada ainda.")
         else:
-            for _, row in vendas_filtradas.iterrows():
-                pendente = row['Vlr_Pago'] - row['Total']
-                with st.expander(f"Venda {row['Cod_Venda']} | {row['Data']} | {row['Cliente']} | {formatar_br(row['Total'])}"):
-                    if row['Vlr_Pago'] > 0:
-                        st.markdown(f"**Total:** {formatar_br(row['Total'])} | **Pago:** {formatar_br(row['Vlr_Pago'])} | **Pendente:** {formatar_br(pendente)}")
-                        st.divider()
-                    itens = df_rep[df_rep['Cod_Venda'] == row['Cod_Venda']].copy()
-                    itens['Vlr. Unitário'] = itens['Vlr_Unitario'].apply(formatar_br)
-                    itens['Vlr. Total'] = itens['Total_Item'].apply(formatar_br)
-                    st.table(itens[['Produto', 'Qtd', 'Vlr. Unitário', 'Desconto', 'Vlr. Total', 'Observacoes']])
+            vendas_cab = df_rep.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Cliente', 'Tema', 'Total', 'Vlr_Pago']].sort_values('Cod_Venda', ascending=False)
+            vendas_cab['Data_dt'] = pd.to_datetime(vendas_cab['Data'], dayfirst=True, errors='coerce')
+            data_min = vendas_cab['Data_dt'].min().date()
+            data_max = vendas_cab['Data_dt'].max().date()
+
+            if st.session_state.filtro_data_val is None:
+                st.session_state.filtro_data_val = (data_min, data_max)
+
+            with st.expander("🔍 Filtros", expanded=False):
+                f1, f2, f3 = st.columns(3)
+                with f1:
+                    clientes_opcoes = ["Todos"] + sorted(vendas_cab['Cliente'].dropna().unique().tolist())
+                    idx_cli = clientes_opcoes.index(st.session_state.filtro_cliente_val) if st.session_state.filtro_cliente_val in clientes_opcoes else 0
+                    filtro_cliente = st.selectbox("Cliente", clientes_opcoes, index=idx_cli)
+                with f2:
+                    filtro_data = st.date_input("Intervalo de Data", value=st.session_state.filtro_data_val)
+                with f3:
+                    filtro_pendente = st.checkbox("Somente com valor pendente", value=st.session_state.filtro_pendente_val)
+                fb1, fb2 = st.columns(2)
+                with fb1:
+                    btn_filtrar = st.button("🔍 Filtrar", type="primary", width='stretch')
+                with fb2:
+                    btn_limpar = st.button("🗑️ Limpar Filtros", width='stretch')
+
+            if btn_limpar:
+                st.session_state.filtro_cliente_val = "Todos"
+                st.session_state.filtro_data_val = (data_min, data_max)
+                st.session_state.filtro_pendente_val = False
+                st.session_state.filtros_aplicados = False
+                st.rerun()
+
+            if btn_filtrar:
+                if isinstance(filtro_data, tuple) and len(filtro_data) == 2:
+                    diff = (filtro_data[1] - filtro_data[0]).days
+                    if diff > 31:
+                        st.error("O intervalo de datas não pode ser maior que 31 dias.")
+                    else:
+                        st.session_state.filtro_cliente_val = filtro_cliente
+                        st.session_state.filtro_data_val = filtro_data
+                        st.session_state.filtro_pendente_val = filtro_pendente
+                        st.session_state.filtros_aplicados = True
+                        st.rerun()
+                else:
+                    st.error("Selecione um intervalo de datas válido (data inicial e data final).")
+
+            vendas_filtradas = vendas_cab.copy()
+            if st.session_state.filtros_aplicados:
+                if st.session_state.filtro_cliente_val != "Todos":
+                    vendas_filtradas = vendas_filtradas[vendas_filtradas['Cliente'] == st.session_state.filtro_cliente_val]
+                if isinstance(st.session_state.filtro_data_val, tuple) and len(st.session_state.filtro_data_val) == 2:
+                    d_ini = pd.Timestamp(st.session_state.filtro_data_val[0])
+                    d_fim = pd.Timestamp(st.session_state.filtro_data_val[1]) + pd.Timedelta(days=1) - pd.Timedelta(seconds=1)
+                    vendas_filtradas = vendas_filtradas[(vendas_filtradas['Data_dt'] >= d_ini) & (vendas_filtradas['Data_dt'] <= d_fim)]
+                if st.session_state.filtro_pendente_val:
+                    vendas_filtradas = vendas_filtradas[(vendas_filtradas['Vlr_Pago'] - vendas_filtradas['Total']).abs() > 0.001]
+
+            st.metric("Faturamento Total", formatar_br(vendas_filtradas['Total'].sum()))
+
+            if vendas_filtradas.empty:
+                st.info("Nenhuma venda encontrada com os filtros selecionados.")
+            else:
+                for _, row in vendas_filtradas.iterrows():
+                    pendente = row['Vlr_Pago'] - row['Total']
+                    with st.expander(f"Venda {row['Cod_Venda']} | {row['Data']} | {row['Cliente']} | {formatar_br(row['Total'])}"):
+                        if row['Vlr_Pago'] > 0:
+                            st.markdown(f"**Total:** {formatar_br(row['Total'])} | **Pago:** {formatar_br(row['Vlr_Pago'])} | **Pendente:** {formatar_br(pendente)}")
+                            st.divider()
+                        itens = df_rep[df_rep['Cod_Venda'] == row['Cod_Venda']].copy()
+                        itens['Vlr. Unitário'] = itens['Vlr_Unitario'].apply(formatar_br)
+                        itens['Vlr. Total'] = itens['Total_Item'].apply(formatar_br)
+                        st.table(itens[['Produto', 'Qtd', 'Vlr. Unitário', 'Desconto', 'Vlr. Total', 'Observacoes']])
+
+    # --- SUB-ABA: FATURAMENTO MENSAL ---
+    with sub_mensal:
+        if df_v is None or df_v.empty:
+            st.info("Nenhuma venda registrada ainda.")
+        else:
+            import calendar
+            from datetime import date
+
+            ano_atual = datetime.now().year
+            mes_atual = datetime.now().month
+
+            # Montar grade de todos os meses de jan até o mês atual
+            todos_meses = pd.DataFrame([
+                {'Ano': ano_atual, 'Mes': m, 'Mes_Nome': calendar.month_name[m]}
+                for m in range(1, mes_atual + 1)
+            ])
+
+            # Calcular totais por mês a partir das vendas
+            vendas_cab_m = df_rep.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Total']].copy()
+            vendas_cab_m['Data_dt'] = pd.to_datetime(vendas_cab_m['Data'], dayfirst=True, errors='coerce')
+            vendas_cab_m['Ano'] = vendas_cab_m['Data_dt'].dt.year
+            vendas_cab_m['Mes'] = vendas_cab_m['Data_dt'].dt.month
+            vendas_cab_m = vendas_cab_m[vendas_cab_m['Ano'] == ano_atual]
+
+            agrup = vendas_cab_m.groupby('Mes').agg(
+                Qtd_Vendas=('Cod_Venda', 'count'),
+                Faturamento=('Total', 'sum')
+            ).reset_index()
+
+            df_mensal = todos_meses.merge(agrup, on='Mes', how='left').fillna(0)
+            df_mensal['Ticket Médio'] = df_mensal.apply(
+                lambda r: r['Faturamento'] / r['Qtd_Vendas'] if r['Qtd_Vendas'] > 0 else 0, axis=1
+            )
+
+            # Filtro de mês
+            meses_opcoes = df_mensal['Mes_Nome'].tolist()
+            filtro_mes = st.selectbox("Filtrar por mês (opcional)", ["Todos"] + meses_opcoes)
+
+            df_exibir = df_mensal.copy()
+            if filtro_mes != "Todos":
+                df_exibir = df_exibir[df_exibir['Mes_Nome'] == filtro_mes]
+
+            # Totais no rodapé
+            total_fat = df_exibir['Faturamento'].sum()
+            total_qtd = int(df_exibir['Qtd_Vendas'].sum())
+            ticket_geral = total_fat / total_qtd if total_qtd > 0 else 0
+
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Faturamento", formatar_br(total_fat))
+            m2.metric("Total de Vendas", str(total_qtd))
+            m3.metric("Ticket Médio", formatar_br(ticket_geral))
+
+            df_tabela = df_exibir[['Mes_Nome', 'Qtd_Vendas', 'Faturamento', 'Ticket Médio']].copy()
+            df_tabela.columns = ['Mês', 'Qtd. Vendas', 'Faturamento (R$)', 'Ticket Médio (R$)']
+            df_tabela['Qtd. Vendas'] = df_tabela['Qtd. Vendas'].astype(int)
+            df_tabela['Faturamento (R$)'] = df_tabela['Faturamento (R$)'].apply(formatar_br)
+            df_tabela['Ticket Médio (R$)'] = df_tabela['Ticket Médio (R$)'].apply(formatar_br)
+            st.dataframe(df_tabela, hide_index=True, use_container_width=True)
+
+    # --- SUB-ABA: TOP 10 PRODUTOS ---
+    with sub_top:
+        if df_v is None or df_v.empty:
+            st.info("Nenhuma venda registrada ainda.")
+        else:
+            # Calcular média mensal de quantidade e valor por produto
+            df_itens = df_rep.copy()
+            df_itens['Data_dt'] = pd.to_datetime(df_itens['Data'], dayfirst=True, errors='coerce')
+            df_itens['Ano_Mes'] = df_itens['Data_dt'].dt.to_period('M')
+
+            # Total por produto por mês
+            por_mes = df_itens.groupby(['Produto', 'Ano_Mes']).agg(
+                Qtd=('Qtd', 'sum'),
+                Valor=('Total_Item', 'sum')
+            ).reset_index()
+
+            # Média mensal por produto
+            media_mensal = por_mes.groupby('Produto').agg(
+                Qtd_Media=('Qtd', 'mean'),
+                Valor_Medio=('Valor', 'mean'),
+                Meses_Ativos=('Ano_Mes', 'count')
+            ).reset_index()
+
+            top10 = media_mensal.sort_values('Qtd_Media', ascending=False).head(10).reset_index(drop=True)
+            top10.index += 1
+            top10.columns = ['Produto', 'Qtd. Média/Mês', 'Valor Médio/Mês (R$)', 'Meses c/ Venda']
+            top10['Qtd. Média/Mês'] = top10['Qtd. Média/Mês'].round(1)
+            top10['Valor Médio/Mês (R$)'] = top10['Valor Médio/Mês (R$)'].apply(formatar_br)
+            top10['Meses c/ Venda'] = top10['Meses c/ Venda'].astype(int)
+
+            st.caption("Top 10 produtos por média de unidades vendidas por mês.")
+            st.dataframe(top10, use_container_width=True)
