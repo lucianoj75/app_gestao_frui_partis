@@ -9,12 +9,12 @@ import bcrypt
 import smtplib
 import uuid
 import re
+import psycopg2
+import psycopg2.extras
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
 # --- CONFIGURAÇÕES DE ARQUITETURA ---
-PASTA_DADOS = 'Dados'
-DB_PATH = os.path.join(PASTA_DADOS, 'frui_partis.db')
 
 # --- CONFIGURAÇÕES DE E-MAIL (preencha com suas credenciais) ---
 SMTP_HOST    = 'smtp.gmail.com'
@@ -23,55 +23,26 @@ SMTP_USER    = st.secrets.get("SMTP_USER",    "")
 SMTP_PASS    = st.secrets.get("SMTP_PASS",    "")
 APP_BASE_URL = st.secrets.get("APP_BASE_URL", "http://localhost:8501")
 
+# --- CONFIGURAÇÕES DO SUPABASE ---
+DB_HOST = st.secrets.get("DB_HOST", "")
+DB_PORT = int(st.secrets.get("DB_PORT", 6543))
+DB_NAME = st.secrets.get("DB_NAME", "postgres")
+DB_USER = st.secrets.get("DB_USER", "")
+DB_PASS = st.secrets.get("DB_PASS", "")
+
 st.set_page_config(page_title="Gestão de Vendas Frui Partis", layout="wide")
 
-# --- MIGRAÇÃO DO BANCO DE DADOS ---
-def migrar_banco():
-    if not os.path.exists(DB_PATH):
-        return
-    conn = sqlite3.connect(DB_PATH)
-    cursor = conn.cursor()
-    try:
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        tabelas = [t[0] for t in cursor.fetchall()]
-        if 'vendas' not in tabelas:
-            cursor.execute("""
-                CREATE TABLE vendas (
-                    Cod_Venda   INTEGER PRIMARY KEY,
-                    Data        TEXT,
-                    Cod_Cliente INTEGER,
-                    Tema        TEXT,
-                    Total       REAL,
-                    Vlr_Pago    REAL DEFAULT 0,
-                    FOREIGN KEY (Cod_Cliente) REFERENCES clientes(Cod_Cliente)
-                )
-            """)
-        if 'vendas_itens' not in tabelas:
-            cursor.execute("""
-                CREATE TABLE vendas_itens (
-                    Cod_Item     INTEGER PRIMARY KEY AUTOINCREMENT,
-                    Cod_Venda    INTEGER,
-                    Cod_Produto  INTEGER,
-                    Qtd          INTEGER,
-                    Vlr_Unitario REAL,
-                    Desconto     REAL DEFAULT 0,
-                    Total_Item   REAL,
-                    Observacoes  TEXT,
-                    FOREIGN KEY (Cod_Venda)   REFERENCES vendas(Cod_Venda),
-                    FOREIGN KEY (Cod_Produto) REFERENCES produtos(Cod_Produto)
-                )
-            """)
-        conn.commit()
-    except Exception as e:
-        st.error(f"Erro na migração do banco: {e}")
-    finally:
-        conn.close()
 
-migrar_banco()
 
 # --- FUNÇÃO AUXILIAR DE CONEXÃO ---
+def get_conn():
+    return psycopg2.connect(
+        host=DB_HOST, port=DB_PORT, dbname=DB_NAME,
+        user=DB_USER, password=DB_PASS, sslmode="require"
+    )
+
 def executar_query(query, params=None, commit=False):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     try:
         if commit:
             cursor = conn.cursor()
@@ -79,7 +50,7 @@ def executar_query(query, params=None, commit=False):
             conn.commit()
             return True
         else:
-            return pd.read_sql(query, conn)
+            return pd.read_sql(query, conn, params=params)
     except Exception as e:
         st.error(f"Erro no banco de dados: {e}")
         return None
@@ -91,10 +62,10 @@ def executar_query(query, params=None, commit=False):
 # ═══════════════════════════════════════════════════════════════════════════
 
 def verificar_login(email, senha):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT id, nome, senha_hash, ativo, admin FROM usuarios WHERE email = ?",
+        "SELECT id, nome, senha_hash, ativo, admin FROM usuarios WHERE email = %s",
         (email,)
     )
     row = cursor.fetchone()
@@ -194,9 +165,9 @@ def enviar_email_redefinicao(email_dest, nome, token):
 def gerar_token_ativacao(usuario_id):
     token   = str(uuid.uuid4())
     expira  = (datetime.now() + timedelta(hours=24)).strftime('%d/%m/%Y %H:%M:%S')
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     conn.execute(
-        "UPDATE usuarios SET token_ativacao = ?, token_expira = ? WHERE id = ?",
+        "UPDATE usuarios SET token_ativacao = %s, token_expira = %s WHERE id = %s",
         (token, expira, usuario_id)
     )
     conn.commit()
@@ -207,9 +178,9 @@ def gerar_token_ativacao(usuario_id):
 def gerar_token_senha(usuario_id):
     token  = str(uuid.uuid4())
     expira = (datetime.now() + timedelta(hours=24)).strftime('%d/%m/%Y %H:%M:%S')
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     conn.execute(
-        "UPDATE usuarios SET token_senha = ?, token_senha_expira = ? WHERE id = ?",
+        "UPDATE usuarios SET token_senha = %s, token_senha_expira = %s WHERE id = %s",
         (token, expira, usuario_id)
     )
     conn.commit()
@@ -217,10 +188,10 @@ def gerar_token_senha(usuario_id):
     return token
 
 def ativar_por_token(token):
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT id, nome, token_expira FROM usuarios WHERE token_ativacao = ?",
+        "SELECT id, nome, token_expira FROM usuarios WHERE token_ativacao = %s",
         (token,)
     )
     row = cursor.fetchone()
@@ -233,7 +204,7 @@ def ativar_por_token(token):
         conn.close()
         return False, "Link de ativação expirado. Solicite um novo cadastro."
     conn.execute(
-        "UPDATE usuarios SET ativo = 1, token_ativacao = NULL, token_expira = NULL WHERE id = ?",
+        "UPDATE usuarios SET ativo = 1, token_ativacao = NULL, token_expira = NULL WHERE id = %s",
         (uid,)
     )
     conn.commit()
@@ -291,9 +262,9 @@ def tela_cadastro():
         cpf_limpo = validar_cpf_formato(cpf)
 
         # Verificar se e-mail já existe
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, ativo FROM usuarios WHERE email = ?", (email.strip().lower(),))
+        cursor.execute("SELECT id, ativo FROM usuarios WHERE email = %s", (email.strip().lower(),))
         existente = cursor.fetchone()
         conn.close()
 
@@ -307,9 +278,11 @@ def tela_cadastro():
                 with col1:
                     if st.button("🔁 Sim, reativar e enviar novo link", type="primary"):
                         token = gerar_token_ativacao(uid_ex)
-                        cursor2 = sqlite3.connect(DB_PATH).cursor()
-                        cursor2.execute("SELECT nome FROM usuarios WHERE id = ?", (uid_ex,))
+                        conn2 = get_conn()
+                        cursor2 = conn2.cursor()
+                        cursor2.execute("SELECT nome FROM usuarios WHERE id = %s", (uid_ex,))
                         nome_ex = cursor2.fetchone()[0]
+                        conn2.close()
                         if enviar_email_ativacao(email.strip().lower(), nome_ex, token):
                             st.success("Link de ativação reenviado! Verifique seu e-mail.")
                         st.session_state.tela = 'login'
@@ -322,13 +295,13 @@ def tela_cadastro():
             # Novo cadastro
             senha_hash = bcrypt.hashpw(senha.encode(), bcrypt.gensalt()).decode()
             agora = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-            conn = sqlite3.connect(DB_PATH)
+            conn = get_conn()
             cursor = conn.cursor()
             cursor.execute("""
                 INSERT INTO usuarios (nome, cpf, email, senha_hash, ativo, admin, criado_em)
-                VALUES (?, ?, ?, ?, 0, 0, ?)
+                VALUES (%s, %s, %s, %s, 0, 0, %s)
             """, (nome.strip(), cpf_limpo, email.strip().lower(), senha_hash, agora))
-            novo_id = cursor.lastrowid
+            novo_id = cursor.fetchone()[0]
             conn.commit()
             conn.close()
 
@@ -356,9 +329,9 @@ def tela_esqueci_senha():
         if not email.strip():
             st.error("Informe seu e-mail.")
             return
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_conn()
         cursor = conn.cursor()
-        cursor.execute("SELECT id, nome FROM usuarios WHERE email = ?", (email.strip().lower(),))
+        cursor.execute("SELECT id, nome FROM usuarios WHERE email = %s", (email.strip().lower(),))
         row = cursor.fetchone()
         conn.close()
         if not row:
@@ -383,10 +356,10 @@ def tela_esqueci_senha():
 def tela_redefinir_senha(token):
     st.title("🔒 Redefinir Senha")
 
-    conn = sqlite3.connect(DB_PATH)
+    conn = get_conn()
     cursor = conn.cursor()
     cursor.execute(
-        "SELECT id, nome, token_senha_expira FROM usuarios WHERE token_senha = ?",
+        "SELECT id, nome, token_senha_expira FROM usuarios WHERE token_senha = %s",
         (token,)
     )
     row = cursor.fetchone()
@@ -429,9 +402,9 @@ def tela_redefinir_senha(token):
             return
 
         senha_hash = bcrypt.hashpw(senha.encode(), bcrypt.gensalt()).decode()
-        conn = sqlite3.connect(DB_PATH)
+        conn = get_conn()
         conn.execute(
-            "UPDATE usuarios SET senha_hash = ?, token_senha = NULL, token_senha_expira = NULL WHERE id = ?",
+            "UPDATE usuarios SET senha_hash = %s, token_senha = NULL, token_senha_expira = NULL WHERE id = %s",
             (senha_hash, uid)
         )
         conn.commit()
@@ -530,7 +503,7 @@ if 'filtro_pendente_val' not in st.session_state: st.session_state.filtro_penden
 # --- FUNÇÕES DE CARREGAMENTO ---
 @st.cache_data(ttl=600)
 def carregar_estoque():
-    df = executar_query("SELECT * FROM produtos")
+    df = executar_query('SELECT * FROM produtos')
     if df is not None and 'Status' in df.columns:
         df['Status'] = df['Status'].map({1: True, 0: False, 'True': True, 'False': False, True: True, False: False}).fillna(True)
     return df
@@ -561,15 +534,15 @@ def popup_novo_produto():
 
         if st.form_submit_button("Salvar"):
             if nome:
-                conn   = sqlite3.connect(DB_PATH)
+                conn   = get_conn()
                 cursor = conn.cursor()
                 try:
-                    cursor.execute("SELECT MAX(Cod_Produto) FROM produtos")
+                    cursor.execute("SELECT MAX(\"Cod_Produto\") FROM produtos")
                     res    = cursor.fetchone()[0]
                     novo_id = int(res) + 1 if res is not None else 1
                     agora  = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
                     cursor.execute(
-                        "INSERT INTO produtos (Cod_Produto, Nome, Preco, [Estoque Atual], Observacoes, Status, criado_por, criado_em) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO produtos (Cod_Produto, Nome, Preco, [Estoque Atual], Observacoes, Status, criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                         (novo_id, nome, preco, estoque, observacoes, 1, usuario_logado['id'], agora)
                     )
                     conn.commit()
@@ -594,15 +567,15 @@ def popup_novo_cliente():
 
         if st.form_submit_button("Salvar"):
             if nome:
-                conn   = sqlite3.connect(DB_PATH)
+                conn   = get_conn()
                 cursor = conn.cursor()
                 try:
-                    cursor.execute("SELECT MAX(Cod_Cliente) FROM clientes")
+                    cursor.execute("SELECT MAX(\"Cod_Cliente\") FROM clientes")
                     res    = cursor.fetchone()[0]
                     novo_id = int(res) + 1 if res is not None else 1
                     agora  = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
                     cursor.execute(
-                        "INSERT INTO clientes (Cod_Cliente, Nome, Tipo_Pessoa, Sexo, Email, Telefone, criado_por, criado_em) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO clientes (Cod_Cliente, Nome, Tipo_Pessoa, Sexo, Email, Telefone, criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                         (novo_id, nome, tipo, sexo, email, telefone, usuario_logado['id'], agora)
                     )
                     conn.commit()
@@ -647,21 +620,21 @@ def popup_pagamento():
     c1, c2 = st.columns(2)
     with c1:
         if st.button("✅ Confirmar Venda", type="primary", width='stretch'):
-            conn   = sqlite3.connect(DB_PATH)
+            conn   = get_conn()
             cursor = conn.cursor()
             try:
-                cursor.execute("SELECT MAX(Cod_Venda) FROM vendas")
+                cursor.execute("SELECT MAX(\"Cod_Venda\") FROM vendas")
                 res = cursor.fetchone()[0]
                 cv  = int(res) + 1 if res is not None else 1
                 dt  = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
                 cursor.execute(
-                    "INSERT INTO vendas (Cod_Venda, Data, Cod_Cliente, Tema, Total, Vlr_Pago, criado_por, criado_em) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                    "INSERT INTO vendas (\"Cod_Venda\", \"Data\", \"Cod_Cliente\", \"Tema\", \"Total\", \"Vlr_Pago\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                     (cv, dt, dados['cod_cli'], dados['tema'], dados['total'], vlr_pago, usuario_logado['id'], dt)
                 )
                 for item in dados['itens']:
-                    cursor.execute("UPDATE produtos SET `Estoque Atual` = `Estoque Atual` - ? WHERE Cod_Produto = ?", (item['Qtd'], item['Cod_Produto']))
+                    cursor.execute("UPDATE produtos SET \"Estoque Atual\" = \"Estoque Atual\" - %s WHERE \"Cod_Produto\" = %s", (item['Qtd'], item['Cod_Produto']))
                     cursor.execute(
-                        "INSERT INTO vendas_itens (Cod_Venda, Cod_Produto, Qtd, Vlr_Unitario, Desconto, Total_Item, Observacoes, criado_por, criado_em) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+                        "INSERT INTO vendas_itens (\"Cod_Venda\", \"Cod_Produto\", \"Qtd\", \"Vlr_Unitario\", \"Desconto\", \"Total_Item\", \"Observacoes\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
                         (cv, item['Cod_Produto'], item['Qtd'], item['Preço Un.'], item['Desconto %'], item['Total'], item['Observacoes'], usuario_logado['id'], dt)
                     )
                 conn.commit()
@@ -687,7 +660,7 @@ def processar_salvamento(df_editado, tabela, pk_col):
     if 'Nome' in df_final.columns:
         df_final = df_final[df_final['Nome'].fillna('').str.strip() != ""]
 
-    conn   = sqlite3.connect(DB_PATH)
+    conn   = get_conn()
     cursor = conn.cursor()
     try:
         agora = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
@@ -698,15 +671,15 @@ def processar_salvamento(df_editado, tabela, pk_col):
         audit_cols = {'criado_por', 'criado_em', 'alterado_por', 'alterado_em'}
 
         # Colunas editáveis (sem PK e sem auditoria)
-        cursor.execute(f"PRAGMA table_info({tabela})")
-        todas_cols = [c[1] for c in cursor.fetchall()]
+        cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = %s", (tabela,))
+        todas_cols = [c[0] for c in cursor.fetchall()]
         edit_cols  = [c for c in df_final.columns if c in todas_cols and c != pk_col and c not in audit_cols]
 
         for _, row in df_final.iterrows():
-            set_clause = ", ".join([f'"{c}" = ?' for c in edit_cols])
-            set_clause += ", alterado_por = ?, alterado_em = ?"
+            set_clause = ", ".join([f'"{c}" = %s' for c in edit_cols])
+            set_clause += ", alterado_por = %s, alterado_em = %s"
             valores = [row[c] for c in edit_cols] + [usuario_logado['id'], agora, row[pk_col]]
-            cursor.execute(f'UPDATE "{tabela}" SET {set_clause} WHERE "{pk_col}" = ?', valores)
+            cursor.execute(f'UPDATE "{tabela}" SET {set_clause} WHERE "{pk_col}" = %s', valores)
 
         conn.commit()
         st.cache_data.clear()
@@ -734,9 +707,7 @@ def formatar_markdown_br(valor):
 
 def preparar_download_dados():
     buf = io.BytesIO()
-    if os.path.exists(DB_PATH):
-        with zipfile.ZipFile(buf, "x") as db_zip:
-            db_zip.write(DB_PATH, arcname=os.path.basename(DB_PATH))
+    # Backup não disponível para banco em nuvem
     return buf.getvalue()
 
 # --- INTERFACE ---
