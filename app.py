@@ -17,11 +17,11 @@ PASTA_DADOS = 'Dados'
 DB_PATH = os.path.join(PASTA_DADOS, 'frui_partis.db')
 
 # --- CONFIGURAÇÕES DE E-MAIL (preencha com suas credenciais) ---
-SMTP_HOST     = 'smtp.gmail.com'
-SMTP_PORT     = 587
-SMTP_USER     = 'lucianoj75@gmail.com'   # seu e-mail Gmail
-SMTP_PASS     = 'yfbm rdlr kpms hpde'    # sua Senha de App Gmail (gerada em myaccount.google.com)
-APP_BASE_URL  = 'http://localhost:8501'  # URL base do sistema
+SMTP_HOST    = 'smtp.gmail.com'
+SMTP_PORT    = 587
+SMTP_USER    = st.secrets.get("SMTP_USER",    "")
+SMTP_PASS    = st.secrets.get("SMTP_PASS",    "")
+APP_BASE_URL = st.secrets.get("APP_BASE_URL", "http://localhost:8501")
 
 st.set_page_config(page_title="Gestão de Vendas Frui Partis", layout="wide")
 
@@ -1031,7 +1031,7 @@ with aba_relatorio:
             df_tabela['Qtd. Vendas']        = df_tabela['Qtd. Vendas'].astype(int)
             df_tabela['Faturamento (R$)']   = df_tabela['Faturamento (R$)'].apply(formatar_br)
             df_tabela['Ticket Médio (R$)']  = df_tabela['Ticket Médio (R$)'].apply(formatar_br)
-            st.dataframe(df_tabela, hide_index=True, width="stretch")
+            st.dataframe(df_tabela, hide_index=True, use_container_width=True)
 
     with sub_top:
         if df_v is None or df_v.empty:
@@ -1060,4 +1060,4 @@ with aba_relatorio:
             top10['Meses c/ Venda']        = top10['Meses c/ Venda'].astype(int)
 
             st.caption("Top 10 produtos por média de unidades vendidas por mês.")
-            st.dataframe(top10, width="stretch")
+            st.dataframe(top10, use_container_width=True)

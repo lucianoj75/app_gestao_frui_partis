@@ -1,0 +1,10 @@
+# Credenciais — nunca enviar ao GitHub
+.streamlit/secrets.toml
+
+# Banco de dados — nunca enviar ao GitHub
+*.db
+
+# Arquivos de sistema
+__pycache__/
+*.pyc
+.DS_Store
