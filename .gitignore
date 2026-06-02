@@ -4,6 +4,10 @@
 # Banco de dados — nunca enviar ao GitHub
 *.db
 
+# Pastas de backup local
+apoio/
+backup_app/
+
 # Arquivos de sistema
 __pycache__/
 *.pyc
