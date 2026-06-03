@@ -11,6 +11,7 @@ import uuid
 import re
 import psycopg2
 import psycopg2.extras
+from sqlalchemy import create_engine, text
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
@@ -41,21 +42,35 @@ def get_conn():
         user=DB_USER, password=DB_PASS, sslmode="require"
     )
 
+@st.cache_resource
+def get_engine():
+    url = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}?sslmode=require"
+    return create_engine(url)
+
 def executar_query(query, params=None, commit=False):
-    conn = get_conn()
-    try:
-        if commit:
+    if commit:
+        conn = get_conn()
+        try:
             cursor = conn.cursor()
             cursor.execute(query, params or ())
             conn.commit()
             return True
-        else:
-            return pd.read_sql(query, conn, params=params)
-    except Exception as e:
-        st.error(f"Erro no banco de dados: {e}")
-        return None
-    finally:
-        conn.close()
+        except Exception as e:
+            st.error(f"Erro no banco de dados: {e}")
+            return None
+        finally:
+            conn.close()
+    else:
+        try:
+            engine = get_engine()
+            with engine.connect() as conn:
+                if params:
+                    return pd.read_sql(text(query), conn, params=params)
+                else:
+                    return pd.read_sql(text(query), conn)
+        except Exception as e:
+            st.error(f"Erro no banco de dados: {e}")
+            return None
 
 # ═══════════════════════════════════════════════════════════════════════════
 #  AUTENTICAÇÃO
@@ -166,7 +181,8 @@ def gerar_token_ativacao(usuario_id):
     token   = str(uuid.uuid4())
     expira  = (datetime.now() + timedelta(hours=24)).strftime('%d/%m/%Y %H:%M:%S')
     conn = get_conn()
-    conn.execute(
+    cur = conn.cursor()
+    cur.execute(
         "UPDATE usuarios SET token_ativacao = %s, token_expira = %s WHERE id = %s",
         (token, expira, usuario_id)
     )
@@ -179,7 +195,8 @@ def gerar_token_senha(usuario_id):
     token  = str(uuid.uuid4())
     expira = (datetime.now() + timedelta(hours=24)).strftime('%d/%m/%Y %H:%M:%S')
     conn = get_conn()
-    conn.execute(
+    cur = conn.cursor()
+    cur.execute(
         "UPDATE usuarios SET token_senha = %s, token_senha_expira = %s WHERE id = %s",
         (token, expira, usuario_id)
     )
@@ -203,7 +220,8 @@ def ativar_por_token(token):
     if datetime.now() > expira:
         conn.close()
         return False, "Link de ativação expirado. Solicite um novo cadastro."
-    conn.execute(
+    cur2 = conn.cursor()
+    cur2.execute(
         "UPDATE usuarios SET ativo = 1, token_ativacao = NULL, token_expira = NULL WHERE id = %s",
         (uid,)
     )
@@ -403,7 +421,8 @@ def tela_redefinir_senha(token):
 
         senha_hash = bcrypt.hashpw(senha.encode(), bcrypt.gensalt()).decode()
         conn = get_conn()
-        conn.execute(
+        cur = conn.cursor()
+        cur.execute(
             "UPDATE usuarios SET senha_hash = %s, token_senha = NULL, token_senha_expira = NULL WHERE id = %s",
             (senha_hash, uid)
         )
@@ -514,11 +533,11 @@ def carregar_clientes():
 
 def carregar_vendas():
     query = (
-        "SELECT v.Cod_Venda, v.Data, v.Cod_Cliente, v.Tema, v.Total, v.Vlr_Pago, "
-        "vi.Cod_Item, vi.Cod_Produto, vi.Qtd, vi.Vlr_Unitario, vi.Desconto, vi.Total_Item, vi.Observacoes "
-        "FROM vendas v "
-        "LEFT JOIN vendas_itens vi ON v.Cod_Venda = vi.Cod_Venda "
-        "ORDER BY v.Cod_Venda DESC"
+        'SELECT v."Cod_Venda", v."Data", v."Cod_Cliente", v."Tema", v."Total", v."Vlr_Pago", '
+        'vi."Cod_Item", vi."Cod_Produto", vi."Qtd", vi."Vlr_Unitario", vi."Desconto", vi."Total_Item", vi."Observacoes" '
+        'FROM vendas v '
+        'LEFT JOIN vendas_itens vi ON v."Cod_Venda" = vi."Cod_Venda" '
+        'ORDER BY v."Cod_Venda" DESC'
     )
     return executar_query(query)
 
@@ -542,7 +561,7 @@ def popup_novo_produto():
                     novo_id = int(res) + 1 if res is not None else 1
                     agora  = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
                     cursor.execute(
-                        "INSERT INTO produtos (Cod_Produto, Nome, Preco, [Estoque Atual], Observacoes, Status, criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        "INSERT INTO produtos (\"Cod_Produto\", \"Nome\", \"Preco\", \"Estoque Atual\", \"Observacoes\", \"Status\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                         (novo_id, nome, preco, estoque, observacoes, 1, usuario_logado['id'], agora)
                     )
                     conn.commit()
@@ -575,7 +594,7 @@ def popup_novo_cliente():
                     novo_id = int(res) + 1 if res is not None else 1
                     agora  = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
                     cursor.execute(
-                        "INSERT INTO clientes (Cod_Cliente, Nome, Tipo_Pessoa, Sexo, Email, Telefone, criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
+                        "INSERT INTO clientes (\"Cod_Cliente\", \"Nome\", \"Tipo_Pessoa\", \"Sexo\", \"Email\", \"Telefone\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
                         (novo_id, nome, tipo, sexo, email, telefone, usuario_logado['id'], agora)
                     )
                     conn.commit()
@@ -629,13 +648,13 @@ def popup_pagamento():
                 dt  = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
                 cursor.execute(
                     "INSERT INTO vendas (\"Cod_Venda\", \"Data\", \"Cod_Cliente\", \"Tema\", \"Total\", \"Vlr_Pago\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (cv, dt, dados['cod_cli'], dados['tema'], dados['total'], vlr_pago, usuario_logado['id'], dt)
+                    (cv, dt, int(dados['cod_cli']) if dados['cod_cli'] else None, dados['tema'], float(dados['total']), float(vlr_pago), usuario_logado['id'], dt)
                 )
                 for item in dados['itens']:
                     cursor.execute("UPDATE produtos SET \"Estoque Atual\" = \"Estoque Atual\" - %s WHERE \"Cod_Produto\" = %s", (item['Qtd'], item['Cod_Produto']))
                     cursor.execute(
                         "INSERT INTO vendas_itens (\"Cod_Venda\", \"Cod_Produto\", \"Qtd\", \"Vlr_Unitario\", \"Desconto\", \"Total_Item\", \"Observacoes\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)",
-                        (cv, item['Cod_Produto'], item['Qtd'], item['Preço Un.'], item['Desconto %'], item['Total'], item['Observacoes'], usuario_logado['id'], dt)
+                        (cv, int(item['Cod_Produto']), int(item['Qtd']), float(item['Preço Un.']), float(item['Desconto %']), float(item['Total']), item['Observacoes'], usuario_logado['id'], dt)
                     )
                 conn.commit()
                 st.session_state.carrinho          = []
@@ -675,10 +694,19 @@ def processar_salvamento(df_editado, tabela, pk_col):
         todas_cols = [c[0] for c in cursor.fetchall()]
         edit_cols  = [c for c in df_final.columns if c in todas_cols and c != pk_col and c not in audit_cols]
 
+        def converter(v):
+            """Converte tipos numpy para tipos nativos Python compatíveis com PostgreSQL."""
+            import numpy as np
+            if isinstance(v, (np.integer,)):  return int(v)
+            if isinstance(v, (np.floating,)): return float(v)
+            if isinstance(v, (np.bool_,)):    return bool(v)
+            if v != v:                         return None  # NaN
+            return v
+
         for _, row in df_final.iterrows():
             set_clause = ", ".join([f'"{c}" = %s' for c in edit_cols])
             set_clause += ", alterado_por = %s, alterado_em = %s"
-            valores = [row[c] for c in edit_cols] + [usuario_logado['id'], agora, row[pk_col]]
+            valores = [converter(row[c]) for c in edit_cols] + [usuario_logado['id'], agora, converter(row[pk_col])]
             cursor.execute(f'UPDATE "{tabela}" SET {set_clause} WHERE "{pk_col}" = %s', valores)
 
         conn.commit()
@@ -1002,7 +1030,7 @@ with aba_relatorio:
             df_tabela['Qtd. Vendas']        = df_tabela['Qtd. Vendas'].astype(int)
             df_tabela['Faturamento (R$)']   = df_tabela['Faturamento (R$)'].apply(formatar_br)
             df_tabela['Ticket Médio (R$)']  = df_tabela['Ticket Médio (R$)'].apply(formatar_br)
-            st.dataframe(df_tabela, hide_index=True, use_container_width=True)
+            st.dataframe(df_tabela, hide_index=True, width="stretch")
 
     with sub_top:
         if df_v is None or df_v.empty:
@@ -1031,4 +1059,4 @@ with aba_relatorio:
             top10['Meses c/ Venda']        = top10['Meses c/ Venda'].astype(int)
 
             st.caption("Top 10 produtos por média de unidades vendidas por mês.")
-            st.dataframe(top10, use_container_width=True)
+            st.dataframe(top10, width="stretch")
