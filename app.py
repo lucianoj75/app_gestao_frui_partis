@@ -769,7 +769,13 @@ df_v = carregar_vendas()
 
 # --- AUXILIARES ---
 def formatar_br(valor):
+    """Para uso em st.markdown, st.metric e st.table — escapa o $ para evitar LaTeX."""
     try: return f"R\\$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except: return valor
+
+def formatar_df(valor):
+    """Para uso em st.dataframe — texto puro, sem escape de $."""
+    try: return f"R$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
     except: return valor
 
 def formatar_markdown_br(valor):
@@ -1052,8 +1058,8 @@ with aba_relatorio:
             df_tabela = df_exibir[['Mes_Nome', 'Qtd_Vendas', 'Faturamento', 'Ticket_Medio']].copy()
             df_tabela.columns = ['Mês', 'Qtd. Vendas', 'Faturamento (R$)', 'Ticket Médio (R$)']
             df_tabela['Qtd. Vendas']        = df_tabela['Qtd. Vendas'].astype(int)
-            df_tabela['Faturamento (R$)']   = df_tabela['Faturamento (R$)'].apply(formatar_br)
-            df_tabela['Ticket Médio (R$)']  = df_tabela['Ticket Médio (R$)'].apply(formatar_br)
+            df_tabela['Faturamento (R$)']   = df_tabela['Faturamento (R$)'].apply(formatar_df)
+            df_tabela['Ticket Médio (R$)']  = df_tabela['Ticket Médio (R$)'].apply(formatar_df)
             st.dataframe(df_tabela, hide_index=True, width="stretch")
 
     with sub_top:
@@ -1063,7 +1069,7 @@ with aba_relatorio:
             top10 = calcular_top10_produtos(df_rep)
             top10.columns = ['Produto', 'Qtd. Média/Mês', 'Valor Médio/Mês (R$)', 'Meses c/ Venda']
             top10['Qtd. Média/Mês']        = top10['Qtd. Média/Mês'].round(1)
-            top10['Valor Médio/Mês (R$)']  = top10['Valor Médio/Mês (R$)'].apply(formatar_br)
+            top10['Valor Médio/Mês (R$)']  = top10['Valor Médio/Mês (R$)'].apply(formatar_df)
             top10['Meses c/ Venda']        = top10['Meses c/ Venda'].astype(int)
 
             st.caption("Top 10 produtos por média de unidades vendidas por mês.")

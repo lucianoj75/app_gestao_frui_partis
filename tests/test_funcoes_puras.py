@@ -29,6 +29,13 @@ def formatar_br(valor):
         return valor
 
 
+def formatar_df(valor):
+    try:
+        return f"R$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except:
+        return valor
+
+
 def formatar_markdown_br(valor):
     try:
         return f"R\\\\$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
@@ -127,6 +134,42 @@ class TestFormatarMarkdownBr:
         r_br  = formatar_br(100)
         r_md  = formatar_markdown_br(100)
         assert r_md.count("\\") > r_br.count("\\")
+
+
+# =============================================================================
+# Testes: formatar_df
+# =============================================================================
+
+class TestFormatarDf:
+
+    def test_sem_barra_no_prefixo(self):
+        # Texto puro para st.dataframe — sem barra invertida antes do $
+        resultado = formatar_df(100)
+        assert resultado.startswith("R$ ")
+        assert "\\" not in resultado
+
+    def test_valor_inteiro(self):
+        assert formatar_df(1000) == "R$ 1.000,00"
+
+    def test_valor_float(self):
+        assert formatar_df(1234.56) == "R$ 1.234,56"
+
+    def test_valor_zero(self):
+        assert formatar_df(0) == "R$ 0,00"
+
+    def test_valor_negativo(self):
+        assert formatar_df(-50.5) == "R$ -50,50"
+
+    def test_valor_string_invalida(self):
+        assert formatar_df("abc") == "abc"
+
+    def test_valor_none(self):
+        assert formatar_df(None) is None
+
+    def test_diferente_de_formatar_br(self):
+        # formatar_df não deve ter barra; formatar_br deve ter
+        assert "\\" not in formatar_df(100)
+        assert "\\" in formatar_br(100)
 
 
 # =============================================================================
