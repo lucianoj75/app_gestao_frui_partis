@@ -13,3 +13,6 @@ backup_app/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Arquivos de cache do pytest
+.pytest_cache/

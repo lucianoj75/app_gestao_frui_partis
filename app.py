@@ -9,6 +9,7 @@ import bcrypt
 import smtplib
 import uuid
 import re
+import numpy as np
 import psycopg2
 import psycopg2.extras
 from sqlalchemy import create_engine, text
@@ -673,7 +674,16 @@ def popup_pagamento():
             st.rerun()
 
 
-def processar_salvamento(df_editado, tabela, pk_col):
+def converter(v):
+    """Converte tipos numpy para tipos nativos Python compatíveis com PostgreSQL."""
+    if isinstance(v, np.integer):  return int(v)
+    if isinstance(v, np.floating): return float(v)
+    if isinstance(v, np.bool_):    return bool(v)
+    if v != v:                     return None  # NaN
+    return v
+
+
+def processar_salvamento(df_editado, tabela, pk_col, usuario_logado):
     """Salva edições linha a linha, preservando campos de auditoria."""
     df_final = df_editado.copy()
     if 'Nome' in df_final.columns:
@@ -693,15 +703,6 @@ def processar_salvamento(df_editado, tabela, pk_col):
         cursor.execute(f"SELECT column_name FROM information_schema.columns WHERE table_name = %s", (tabela,))
         todas_cols = [c[0] for c in cursor.fetchall()]
         edit_cols  = [c for c in df_final.columns if c in todas_cols and c != pk_col and c not in audit_cols]
-
-        def converter(v):
-            """Converte tipos numpy para tipos nativos Python compatíveis com PostgreSQL."""
-            import numpy as np
-            if isinstance(v, (np.integer,)):  return int(v)
-            if isinstance(v, (np.floating,)): return float(v)
-            if isinstance(v, (np.bool_,)):    return bool(v)
-            if v != v:                         return None  # NaN
-            return v
 
         for _, row in df_final.iterrows():
             set_clause = ", ".join([f'"{c}" = %s' for c in edit_cols])
@@ -867,7 +868,7 @@ with aba_gestao_p:
             st.session_state.p_alterado = True
 
         if salvar_p:
-            if processar_salvamento(res_p, "produtos", "Cod_Produto"):
+            if processar_salvamento(res_p, "produtos", "Cod_Produto", usuario_logado):
                 st.session_state.p_alterado = False
                 st.session_state.p_key     += 1
                 st.rerun()
@@ -888,7 +889,7 @@ with aba_gestao_c:
                 **colunas_ocultar
             })
         if st.button("💾 Salvar Edições de Clientes", width='stretch'):
-            if processar_salvamento(res_c, "clientes", "Cod_Cliente"):
+            if processar_salvamento(res_c, "clientes", "Cod_Cliente", usuario_logado):
                 st.session_state.c_key += 1
                 st.rerun()
 

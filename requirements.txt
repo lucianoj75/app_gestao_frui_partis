@@ -3,3 +3,4 @@ pandas
 bcrypt
 psycopg2-binary
 sqlalchemy
+pytest
