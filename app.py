@@ -683,6 +683,48 @@ def converter(v):
     return v
 
 
+def calcular_faturamento_mensal(df_vendas, ano):
+    """Retorna DataFrame com faturamento, qtd de vendas e ticket médio por mês do ano informado."""
+    import calendar
+    todos_meses = pd.DataFrame([
+        {'Ano': ano, 'Mes': m, 'Mes_Nome': calendar.month_name[m]}
+        for m in range(1, 13)
+    ])
+    df = df_vendas.copy()
+    df['Data_dt'] = pd.to_datetime(df['Data'], dayfirst=True, errors='coerce')
+    df['Ano'] = df['Data_dt'].dt.year
+    df['Mes'] = df['Data_dt'].dt.month
+    df = df[df['Ano'] == ano]
+    agrup = df.groupby('Mes').agg(
+        Qtd_Vendas=('Cod_Venda', 'count'),
+        Faturamento=('Total', 'sum')
+    ).reset_index()
+    resultado = todos_meses.merge(agrup, on='Mes', how='left').fillna(0)
+    resultado['Ticket_Medio'] = resultado.apply(
+        lambda r: r['Faturamento'] / r['Qtd_Vendas'] if r['Qtd_Vendas'] > 0 else 0, axis=1
+    )
+    return resultado
+
+
+def calcular_top10_produtos(df_itens):
+    """Retorna DataFrame com os top 10 produtos por média de unidades vendidas por mês."""
+    df = df_itens.copy()
+    df['Data_dt'] = pd.to_datetime(df['Data'], dayfirst=True, errors='coerce')
+    df['Ano_Mes'] = df['Data_dt'].dt.to_period('M')
+    por_mes = df.groupby(['Produto', 'Ano_Mes']).agg(
+        Qtd=('Qtd', 'sum'),
+        Valor=('Total_Item', 'sum')
+    ).reset_index()
+    media_mensal = por_mes.groupby('Produto').agg(
+        Qtd_Media=('Qtd', 'mean'),
+        Valor_Medio=('Valor', 'mean'),
+        Meses_Ativos=('Ano_Mes', 'count')
+    ).reset_index()
+    top10 = media_mensal.sort_values('Qtd_Media', ascending=False).head(10).reset_index(drop=True)
+    top10.index += 1
+    return top10
+
+
 def processar_salvamento(df_editado, tabela, pk_col, usuario_logado):
     """Salva edições linha a linha, preservando campos de auditoria."""
     df_final = df_editado.copy()
@@ -984,31 +1026,12 @@ with aba_relatorio:
         if df_v is None or df_v.empty:
             st.info("Nenhuma venda registrada ainda.")
         else:
-            import calendar
-
             ano_atual = datetime.now().year
             mes_atual = datetime.now().month
 
-            todos_meses = pd.DataFrame([
-                {'Ano': ano_atual, 'Mes': m, 'Mes_Nome': calendar.month_name[m]}
-                for m in range(1, mes_atual + 1)
-            ])
-
             vendas_cab_m = df_rep.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Total']].copy()
-            vendas_cab_m['Data_dt'] = pd.to_datetime(vendas_cab_m['Data'], dayfirst=True, errors='coerce')
-            vendas_cab_m['Ano']     = vendas_cab_m['Data_dt'].dt.year
-            vendas_cab_m['Mes']     = vendas_cab_m['Data_dt'].dt.month
-            vendas_cab_m = vendas_cab_m[vendas_cab_m['Ano'] == ano_atual]
-
-            agrup = vendas_cab_m.groupby('Mes').agg(
-                Qtd_Vendas=('Cod_Venda', 'count'),
-                Faturamento=('Total', 'sum')
-            ).reset_index()
-
-            df_mensal = todos_meses.merge(agrup, on='Mes', how='left').fillna(0)
-            df_mensal['Ticket Médio'] = df_mensal.apply(
-                lambda r: r['Faturamento'] / r['Qtd_Vendas'] if r['Qtd_Vendas'] > 0 else 0, axis=1
-            )
+            df_mensal = calcular_faturamento_mensal(vendas_cab_m, ano_atual)
+            df_mensal = df_mensal[df_mensal['Mes'] <= mes_atual]
 
             meses_opcoes = df_mensal['Mes_Nome'].tolist()
             filtro_mes   = st.selectbox("Filtrar por mês (opcional)", ["Todos"] + meses_opcoes)
@@ -1026,7 +1049,7 @@ with aba_relatorio:
             m2.metric("Total de Vendas", str(total_qtd))
             m3.metric("Ticket Médio",   formatar_br(ticket_geral))
 
-            df_tabela = df_exibir[['Mes_Nome', 'Qtd_Vendas', 'Faturamento', 'Ticket Médio']].copy()
+            df_tabela = df_exibir[['Mes_Nome', 'Qtd_Vendas', 'Faturamento', 'Ticket_Medio']].copy()
             df_tabela.columns = ['Mês', 'Qtd. Vendas', 'Faturamento (R$)', 'Ticket Médio (R$)']
             df_tabela['Qtd. Vendas']        = df_tabela['Qtd. Vendas'].astype(int)
             df_tabela['Faturamento (R$)']   = df_tabela['Faturamento (R$)'].apply(formatar_br)
@@ -1037,23 +1060,7 @@ with aba_relatorio:
         if df_v is None or df_v.empty:
             st.info("Nenhuma venda registrada ainda.")
         else:
-            df_itens = df_rep.copy()
-            df_itens['Data_dt'] = pd.to_datetime(df_itens['Data'], dayfirst=True, errors='coerce')
-            df_itens['Ano_Mes'] = df_itens['Data_dt'].dt.to_period('M')
-
-            por_mes = df_itens.groupby(['Produto', 'Ano_Mes']).agg(
-                Qtd=('Qtd', 'sum'),
-                Valor=('Total_Item', 'sum')
-            ).reset_index()
-
-            media_mensal = por_mes.groupby('Produto').agg(
-                Qtd_Media=('Qtd', 'mean'),
-                Valor_Medio=('Valor', 'mean'),
-                Meses_Ativos=('Ano_Mes', 'count')
-            ).reset_index()
-
-            top10 = media_mensal.sort_values('Qtd_Media', ascending=False).head(10).reset_index(drop=True)
-            top10.index += 1
+            top10 = calcular_top10_produtos(df_rep)
             top10.columns = ['Produto', 'Qtd. Média/Mês', 'Valor Médio/Mês (R$)', 'Meses c/ Venda']
             top10['Qtd. Média/Mês']        = top10['Qtd. Média/Mês'].round(1)
             top10['Valor Médio/Mês (R$)']  = top10['Valor Médio/Mês (R$)'].apply(formatar_br)
