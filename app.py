@@ -1230,8 +1230,6 @@ with aba_relatorio:
 
             st.divider()
             st.markdown("### 🏆 Top 3 Produtos do Mês")
-            df_itens_dash = df_v[['Cod_Venda', 'Produto', 'Qtd']].copy()
-            # df_v ainda não tem coluna 'Produto' aqui; usa df_rep quando disponível
             df_itens_dash = df_rep[['Cod_Venda', 'Produto', 'Qtd']].copy()
             top3 = calcular_top3_mes(vendas_unique, df_itens_dash, mes_atual, ano_atual)
             if top3.empty:
