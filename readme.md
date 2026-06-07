@@ -1,6 +1,6 @@
 ---
 status: ![Status](https://img.shields.io/badge/Status-Operacional-brightgreen)
-version: 2.3.0
+version: 2.3.1
 last_updated: 2026-06-07
 ---
 
@@ -41,6 +41,7 @@ Cinco sub-abas independentes:
 
 **Dashboard**
 - Métricas do mês corrente com delta vs mês anterior: faturamento, quantidade de vendas e ticket médio
+- Delta positivo: verde ↑ | Delta negativo: vermelho ↓ | Delta zero: badge âmbar "Sem variação" | Sem vendas no mês: sem indicador
 - Top 3 produtos mais vendidos no mês (por quantidade)
 - Alerta de produtos com estoque zerado
 
