@@ -519,6 +519,8 @@ if 'filtros_aplicados' not in st.session_state: st.session_state.filtros_aplicad
 if 'filtro_cliente_val' not in st.session_state: st.session_state.filtro_cliente_val = 'Todos'
 if 'filtro_data_val' not in st.session_state: st.session_state.filtro_data_val = None
 if 'filtro_pendente_val' not in st.session_state: st.session_state.filtro_pendente_val = False
+if 'modal_cobranca_dados' not in st.session_state: st.session_state.modal_cobranca_dados = None
+if 'modal_pagamento_dados' not in st.session_state: st.session_state.modal_pagamento_dados = None
 
 # --- FUNÇÕES DE CARREGAMENTO ---
 @st.cache_data(ttl=600)
@@ -534,9 +536,12 @@ def carregar_clientes():
 
 def carregar_vendas():
     query = (
-        'SELECT v."Cod_Venda", v."Data", v."Cod_Cliente", v."Tema", v."Total", v."Vlr_Pago", '
+        'SELECT v."Cod_Venda", v."Data", v."Cod_Cliente", v."Tema", v."Total", '
+        'COALESCE(pag.total_pago, 0) AS "Vlr_Pago", '
         'vi."Cod_Item", vi."Cod_Produto", vi."Qtd", vi."Vlr_Unitario", vi."Desconto", vi."Total_Item", vi."Observacoes" '
         'FROM vendas v '
+        'LEFT JOIN (SELECT venda_id, SUM(valor) AS total_pago FROM vendas_pagamentos GROUP BY venda_id) pag '
+        '  ON pag.venda_id = v."Cod_Venda" '
         'LEFT JOIN vendas_itens vi ON v."Cod_Venda" = vi."Cod_Venda" '
         'ORDER BY v."Cod_Venda" DESC'
     )
@@ -648,9 +653,15 @@ def popup_pagamento():
                 cv  = int(res) + 1 if res is not None else 1
                 dt  = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
                 cursor.execute(
-                    "INSERT INTO vendas (\"Cod_Venda\", \"Data\", \"Cod_Cliente\", \"Tema\", \"Total\", \"Vlr_Pago\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (cv, dt, int(dados['cod_cli']) if dados['cod_cli'] else None, dados['tema'], float(dados['total']), float(vlr_pago), usuario_logado['id'], dt)
+                    "INSERT INTO vendas (\"Cod_Venda\", \"Data\", \"Cod_Cliente\", \"Tema\", \"Total\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s)",
+                    (cv, dt, int(dados['cod_cli']) if dados['cod_cli'] else None, dados['tema'], float(dados['total']), usuario_logado['id'], dt)
                 )
+                if vlr_pago > 0:
+                    data_pag = datetime.strptime(dt, '%d/%m/%Y %H:%M:%S').date()
+                    cursor.execute(
+                        "INSERT INTO vendas_pagamentos (venda_id, valor, data_pagamento, observacao, criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s)",
+                        (cv, float(vlr_pago), data_pag, 'Pagamento no ato da venda', usuario_logado['id'], datetime.now())
+                    )
                 for item in dados['itens']:
                     cursor.execute("UPDATE produtos SET \"Estoque Atual\" = \"Estoque Atual\" - %s WHERE \"Cod_Produto\" = %s", (item['Qtd'], item['Cod_Produto']))
                     cursor.execute(
@@ -761,6 +772,159 @@ def processar_salvamento(df_editado, tabela, pk_col, usuario_logado):
         return False
     finally:
         conn.close()
+
+# ═══════════════════════════════════════════════════════════════════════════
+#  FUNÇÕES DE INADIMPLÊNCIA
+# ═══════════════════════════════════════════════════════════════════════════
+
+def buscar_inadimplentes():
+    conn = get_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+              c."Cod_Cliente"  AS cliente_id,
+              c."Nome"         AS cliente,
+              COUNT(v."Cod_Venda") AS vendas_em_aberto,
+              SUM(v."Total" - COALESCE(pag.total_pago, 0)) AS saldo_total,
+              MIN(TO_DATE(SPLIT_PART(v."Data", ' ', 1), 'DD/MM/YYYY')) AS mais_antiga
+            FROM vendas v
+            JOIN clientes c ON c."Cod_Cliente" = v."Cod_Cliente"
+            LEFT JOIN (
+              SELECT venda_id, SUM(valor) AS total_pago
+              FROM vendas_pagamentos
+              GROUP BY venda_id
+            ) pag ON pag.venda_id = v."Cod_Venda"
+            WHERE v."Total" - COALESCE(pag.total_pago, 0) > 0
+            GROUP BY c."Cod_Cliente", c."Nome"
+            ORDER BY saldo_total DESC
+        """)
+        rows = cursor.fetchall()
+        return pd.DataFrame(rows, columns=['cliente_id', 'cliente', 'vendas_em_aberto', 'saldo_total', 'mais_antiga'])
+    finally:
+        conn.close()
+
+
+def buscar_vendas_em_aberto(cliente_id):
+    conn = get_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT
+              v."Cod_Venda"  AS venda_id,
+              TO_DATE(SPLIT_PART(v."Data", ' ', 1), 'DD/MM/YYYY') AS data,
+              v."Total"      AS total,
+              COALESCE(pag.total_pago, 0) AS pago,
+              v."Total" - COALESCE(pag.total_pago, 0) AS saldo
+            FROM vendas v
+            LEFT JOIN (
+              SELECT venda_id, SUM(valor) AS total_pago
+              FROM vendas_pagamentos
+              GROUP BY venda_id
+            ) pag ON pag.venda_id = v."Cod_Venda"
+            WHERE v."Cod_Cliente" = %s
+              AND v."Total" - COALESCE(pag.total_pago, 0) > 0
+            ORDER BY data ASC
+        """, (cliente_id,))
+        rows = cursor.fetchall()
+        return pd.DataFrame(rows, columns=['venda_id', 'data', 'total', 'pago', 'saldo'])
+    finally:
+        conn.close()
+
+
+def registrar_cobranca(venda_id, data_cobranca, observacao, usuario_id):
+    conn = get_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO "vendas_cobranças" (venda_id, data_cobranca, observacao, criado_por, criado_em) '
+            'VALUES (%s, %s, %s, %s, %s)',
+            (venda_id, data_cobranca, observacao, usuario_id, datetime.now())
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+def registrar_pagamento(venda_id, valor, data_pagamento, observacao, usuario_id):
+    conn = get_conn()
+    try:
+        cursor = conn.cursor()
+        cursor.execute(
+            'INSERT INTO vendas_pagamentos (venda_id, valor, data_pagamento, observacao, criado_por, criado_em) '
+            'VALUES (%s, %s, %s, %s, %s, %s)',
+            (venda_id, valor, data_pagamento, observacao or None, usuario_id, datetime.now())
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
+@st.dialog("📣 Registrar aviso de cobrança")
+def popup_registrar_cobranca():
+    d = st.session_state.modal_cobranca_dados
+    venda_id     = d['venda_id']
+    cliente_nome = d['cliente_nome']
+    data_venda   = d['data_venda']
+    saldo        = d['saldo']
+
+    st.caption(f"{cliente_nome} — venda de {data_venda}")
+    with st.container(border=True):
+        col_l, col_r = st.columns(2)
+        col_l.markdown("Saldo em aberto")
+        col_r.markdown(f"<span style='color:#dc2626;float:right'><b>{formatar_df(saldo)}</b></span>", unsafe_allow_html=True)
+
+    data_cob = st.date_input("Data da cobrança", value=datetime.now().date())
+    obs = st.text_area("Observação", placeholder="Ex: cliente avisado por WhatsApp, prometeu pagar até dia 15...")
+
+    st.divider()
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Cancelar", width='stretch'):
+            st.session_state.modal_cobranca_dados = None
+            st.rerun()
+    with c2:
+        if st.button("Salvar", type="primary", width='stretch'):
+            if not obs.strip():
+                st.error("Observação é obrigatória.")
+            else:
+                registrar_cobranca(venda_id, data_cob, obs.strip(), usuario_logado['id'])
+                st.session_state.modal_cobranca_dados = None
+                st.success("Aviso de cobrança registrado!")
+                st.rerun()
+
+
+@st.dialog("💲 Receber pagamento")
+def popup_receber_pagamento():
+    d = st.session_state.modal_pagamento_dados
+    venda_id     = d['venda_id']
+    cliente_nome = d['cliente_nome']
+    data_venda   = d['data_venda']
+    saldo        = float(d['saldo'])
+
+    st.caption(f"{cliente_nome} — venda de {data_venda}")
+    with st.container(border=True):
+        col_l, col_r = st.columns(2)
+        col_l.markdown("Saldo em aberto")
+        col_r.markdown(f"<span style='color:#dc2626;float:right'><b>{formatar_df(saldo)}</b></span>", unsafe_allow_html=True)
+
+    valor   = st.number_input("Valor recebido", min_value=0.01, max_value=saldo, value=saldo, step=0.01, format="%.2f")
+    data_rec = st.date_input("Data do recebimento", value=datetime.now().date())
+    obs     = st.text_input("Observação (opcional)", placeholder="Ex: pago via PIX")
+
+    st.divider()
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("Cancelar", width='stretch'):
+            st.session_state.modal_pagamento_dados = None
+            st.rerun()
+    with c2:
+        if st.button("Confirmar recebimento", type="primary", width='stretch'):
+            registrar_pagamento(venda_id, valor, data_rec, obs.strip() or None, usuario_logado['id'])
+            st.session_state.modal_pagamento_dados = None
+            st.cache_data.clear()
+            st.rerun()
+
 
 # --- CARREGAMENTO INICIAL ---
 df_p = carregar_estoque()
@@ -883,9 +1047,6 @@ with aba_venda:
                 }
                 st.rerun()
 
-    if st.session_state.pagamento_pendente is not None:
-        popup_pagamento()
-
 # --- ABA 2: GESTÃO DE PRODUTOS ---
 with aba_gestao_p:
     st.subheader("📋 Gestão de Produtos")
@@ -946,7 +1107,7 @@ with aba_relatorio:
     st.subheader("📈 Histórico e Relatórios")
     st.download_button("📥 Baixar Banco de Dados", data=preparar_download_dados(), file_name="backup_fruipartis.zip")
 
-    sub_vendas, sub_mensal, sub_top = st.tabs(["🧾 Vendas", "📅 Faturamento Mensal", "🏆 Top 10 Produtos"])
+    sub_vendas, sub_mensal, sub_top, sub_inadimplencia = st.tabs(["🧾 Vendas", "📅 Faturamento Mensal", "🏆 Top 10 Produtos", "⚠️ Inadimplência"])
 
     if df_v is not None and not df_v.empty:
         df_rep = df_v.merge(df_c[['Cod_Cliente', 'Nome']], on='Cod_Cliente', how='left').rename(columns={'Nome': 'Cliente'})
@@ -1074,3 +1235,82 @@ with aba_relatorio:
 
             st.caption("Top 10 produtos por média de unidades vendidas por mês.")
             st.dataframe(top10, width="stretch")
+
+    with sub_inadimplencia:
+        df_inad = buscar_inadimplentes()
+
+        if df_inad is None or df_inad.empty:
+            st.info("Nenhum cliente com saldo em aberto.")
+        else:
+            total_aberto     = float(df_inad['saldo_total'].sum())
+            clientes_deved   = int(df_inad['cliente_id'].nunique())
+            divida_mais_ant  = df_inad['mais_antiga'].min()
+
+            m1, m2, m3 = st.columns(3)
+            m1.metric("Total em aberto",   formatar_br(total_aberto))
+            m2.metric("Clientes devedores", str(clientes_deved))
+            m3.metric("Dívida mais antiga", divida_mais_ant.strftime('%d/%m/%Y') if divida_mais_ant else "—")
+
+            st.markdown("#### Clientes com saldo em aberto")
+
+            for _, row_cli in df_inad.iterrows():
+                n_vendas    = int(row_cli['vendas_em_aberto'])
+                saldo_cli   = float(row_cli['saldo_total'])
+                mais_antiga = row_cli['mais_antiga'].strftime('%d/%m/%Y') if row_cli['mais_antiga'] else "—"
+                label_badge = f"{n_vendas} {'venda' if n_vendas == 1 else 'vendas'}"
+
+                with st.expander(
+                    f"**{row_cli['cliente']}** &nbsp;&nbsp; `{label_badge}` &nbsp;&nbsp; "
+                    f"**{formatar_df(saldo_cli)}** &nbsp;&nbsp; {mais_antiga}"
+                ):
+                    df_ab = buscar_vendas_em_aberto(int(row_cli['cliente_id']))
+                    if df_ab is None or df_ab.empty:
+                        st.info("Nenhuma venda em aberto encontrada.")
+                    else:
+                        header_cols = st.columns([2, 2, 2, 2, 1, 1])
+                        header_cols[0].markdown("**Data**")
+                        header_cols[1].markdown("**Total**")
+                        header_cols[2].markdown("**Pago**")
+                        header_cols[3].markdown("**Saldo**")
+                        header_cols[4].markdown("**Cobrança**")
+                        header_cols[5].markdown("**Pagamento**")
+                        st.divider()
+
+                        for _, row_v in df_ab.iterrows():
+                            vid         = int(row_v['venda_id'])
+                            data_fmt    = row_v['data'].strftime('%d/%m/%Y') if row_v['data'] else "—"
+                            saldo_v     = float(row_v['saldo'])
+                            row_cols    = st.columns([2, 2, 2, 2, 1, 1])
+                            row_cols[0].markdown(data_fmt)
+                            row_cols[1].markdown(formatar_df(float(row_v['total'])))
+                            row_cols[2].markdown(formatar_df(float(row_v['pago'])))
+                            row_cols[3].markdown(
+                                f"<span style='color:#dc2626'><b>{formatar_df(saldo_v)}</b></span>",
+                                unsafe_allow_html=True
+                            )
+                            with row_cols[4]:
+                                if st.button("📣", key=f"cob_{vid}", help="Registrar aviso de cobrança"):
+                                    st.session_state.modal_cobranca_dados = {
+                                        'venda_id':     vid,
+                                        'cliente_nome': row_cli['cliente'],
+                                        'data_venda':   data_fmt,
+                                        'saldo':        saldo_v,
+                                    }
+                                    st.rerun()
+                            with row_cols[5]:
+                                if st.button("💲", key=f"pag_{vid}", help="Receber pagamento"):
+                                    st.session_state.modal_pagamento_dados = {
+                                        'venda_id':     vid,
+                                        'cliente_nome': row_cli['cliente'],
+                                        'data_venda':   data_fmt,
+                                        'saldo':        saldo_v,
+                                    }
+                                    st.rerun()
+
+# --- DIALOGS GLOBAIS (apenas um por ciclo de execução) ---
+if st.session_state.pagamento_pendente is not None:
+    popup_pagamento()
+elif st.session_state.modal_cobranca_dados:
+    popup_registrar_cobranca()
+elif st.session_state.modal_pagamento_dados:
+    popup_receber_pagamento()

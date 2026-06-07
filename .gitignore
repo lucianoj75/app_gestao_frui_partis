@@ -16,3 +16,6 @@ __pycache__/
 
 # Arquivos de cache do pytest
 .pytest_cache/
+
+# Evolução da aplicação
+ClaudeChat_Project/
