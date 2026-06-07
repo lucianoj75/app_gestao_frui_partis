@@ -1203,10 +1203,17 @@ with aba_relatorio:
             metricas = calcular_metricas_dashboard(vendas_unique, mes_atual, ano_atual)
 
             def _fmt_delta_br(v):
-                if v is None:
+                """Formata delta monetário. Retorna None quando zero ou ausente (sem indicador)."""
+                if v is None or v == 0:
                     return None
                 abs_fmt = formatar_br(abs(v))
                 return f"-{abs_fmt}" if v < 0 else f"+{abs_fmt}"
+
+            def _delta_int(v):
+                """Delta numérico inteiro. Retorna None quando zero ou ausente."""
+                if v is None or v == 0:
+                    return None
+                return v
 
             d1, d2, d3 = st.columns(3)
             d1.metric(
@@ -1218,7 +1225,7 @@ with aba_relatorio:
             d2.metric(
                 "Vendas no mês",
                 str(metricas['qtd_vendas']),
-                delta=metricas['delta_qtd'],
+                delta=_delta_int(metricas['delta_qtd']),
                 delta_color="normal"
             )
             d3.metric(
