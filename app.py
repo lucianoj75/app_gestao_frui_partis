@@ -1202,37 +1202,61 @@ with aba_relatorio:
             vendas_unique = df_v.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Total']]
             metricas = calcular_metricas_dashboard(vendas_unique, mes_atual, ano_atual)
 
+            # CSS: delta zero → amarelo, sem triângulo (substituído por →)
+            st.markdown("""
+<style>
+[data-testid="stMetricDeltaIcon-Off"] { display: none !important; }
+[data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Off"]) {
+    color: #f59e0b !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
             def _fmt_delta_br(v):
-                """Formata delta monetário. Retorna None quando zero ou ausente (sem indicador)."""
-                if v is None or v == 0:
+                """Delta monetário: None=oculto, 0=amarelo →, ±=verde/vermelho."""
+                if v is None:
                     return None
+                if v == 0:
+                    return "→ R$ 0,00"
                 abs_fmt = formatar_br(abs(v))
                 return f"-{abs_fmt}" if v < 0 else f"+{abs_fmt}"
 
             def _delta_int(v):
-                """Delta numérico inteiro. Retorna None quando zero ou ausente."""
-                if v is None or v == 0:
+                """Delta inteiro: None=oculto, 0=amarelo →, ±=verde/vermelho."""
+                if v is None:
                     return None
+                if v == 0:
+                    return "→ 0"
                 return v
+
+            def _delta_color(v):
+                """'off' para zero (amarelo via CSS), 'normal' para os demais."""
+                if v is not None and v == 0:
+                    return "off"
+                return "normal"
+
+            fat_d = metricas['delta_fat']
+            qtd_d = metricas['delta_qtd']
+            tk_d  = metricas['delta_ticket']
 
             d1, d2, d3 = st.columns(3)
             d1.metric(
                 "Faturamento do mês",
                 formatar_br(metricas['faturamento']),
-                delta=_fmt_delta_br(metricas['delta_fat']),
-                delta_color="normal"
+                delta=_fmt_delta_br(fat_d),
+                delta_color=_delta_color(fat_d)
             )
             d2.metric(
                 "Vendas no mês",
                 str(metricas['qtd_vendas']),
-                delta=_delta_int(metricas['delta_qtd']),
-                delta_color="normal"
+                delta=_delta_int(qtd_d),
+                delta_color=_delta_color(qtd_d)
             )
             d3.metric(
                 "Ticket médio",
                 formatar_br(metricas['ticket_medio']),
-                delta=_fmt_delta_br(metricas['delta_ticket']),
-                delta_color="normal"
+                delta=_fmt_delta_br(tk_d),
+                delta_color=_delta_color(tk_d)
             )
 
             st.divider()
