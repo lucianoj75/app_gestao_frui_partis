@@ -1205,8 +1205,8 @@ with aba_relatorio:
             def _fmt_delta_br(v):
                 if v is None:
                     return None
-                sinal = "+" if v >= 0 else ""
-                return f"{sinal}{formatar_br(v)}"
+                abs_fmt = formatar_br(abs(v))
+                return f"-{abs_fmt}" if v < 0 else f"+{abs_fmt}"
 
             d1, d2, d3 = st.columns(3)
             d1.metric(
