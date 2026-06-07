@@ -1,6 +1,8 @@
 streamlit
 pandas
+numpy
 bcrypt
 psycopg2-binary
 sqlalchemy
+plotly
 pytest
