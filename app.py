@@ -1279,6 +1279,14 @@ with aba_relatorio:
                           delta=_fmt_delta_br(tk_d), delta_color="normal")
                 _zero_badge(d3, tk_d)
 
+                mes_ant_num = mes_sel - 1 if mes_sel > 1 else 12
+                mes_ant_nome = MESES_PT[mes_ant_num]
+                ano_ant_caption = ano_atual if mes_sel > 1 else ano_atual - 1
+                st.caption(
+                    f"📅 **{filtro_mes_dash} de {ano_atual}** · "
+                    f"Variação em relação a **{mes_ant_nome} de {ano_ant_caption}**"
+                )
+
             st.divider()
 
             # --- Bloco 2: Gráfico de evolução mensal ---

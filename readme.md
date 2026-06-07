@@ -42,7 +42,7 @@ Quatro sub-abas independentes:
 **Dashboard**
 - Filtro de mês no topo (Janeiro até o mês corrente, em pt-BR) com opção "Todos" — controla todos os blocos
 - Métricas do período selecionado: faturamento, quantidade de vendas e ticket médio
-  - Com mês específico: exibe delta vs mês anterior (verde ↑ / vermelho ↓ / badge âmbar "Sem variação" / sem indicador quando sem vendas)
+  - Com mês específico: exibe delta vs mês anterior (verde ↑ / vermelho ↓ / badge âmbar "Sem variação" / sem indicador quando sem vendas); caption dinâmico abaixo das métricas indica o mês de referência (ex: "📅 Maio de 2026 · Variação em relação a Abril de 2026")
   - Com "Todos": exibe totais do ano sem delta
 - Gráfico de linha interativo (Plotly) com evolução mensal da métrica selecionada (Faturamento, Qtd. Vendas ou Ticket Médio); ponto âmbar destaca o mês selecionado no filtro
 - Top 3 produtos mais vendidos no período (mês ou ano inteiro), por quantidade
