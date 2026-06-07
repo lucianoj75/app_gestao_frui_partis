@@ -13,7 +13,8 @@ projeto/
     ├── __init__.py              ← arquivo vazio, necessário para o pytest localizar os módulos
     ├── test_funcoes_puras.py    ← testes de funções puras (sem banco, sem Streamlit)
     ├── test_banco_mock.py       ← testes de funções com banco de dados (usando mock)
-    └── test_relatorios.py       ← testes das funções de cálculo de relatórios
+    ├── test_relatorios.py       ← testes das funções de cálculo de relatórios
+    └── test_inadimplencia.py    ← testes das funções da sub-aba Inadimplência (usando mock)
 ```
 
 ---
@@ -42,6 +43,7 @@ pytest tests/ -v
 pytest tests/test_funcoes_puras.py -v
 pytest tests/test_banco_mock.py -v
 pytest tests/test_relatorios.py -v
+pytest tests/test_inadimplencia.py -v
 ```
 
 A flag `-v` exibe cada teste individualmente com o resultado. Sem ela, aparece apenas o resumo final.
@@ -62,6 +64,9 @@ Funções que dependem de conexão com o PostgreSQL. A conexão é substituída 
 
 ### 3. Funções de cálculo de relatórios (`test_relatorios.py`)
 Funções extraídas das abas de relatórios do Streamlit e isoladas como funções puras que recebem DataFrames e retornam DataFrames calculados. Testadas com dados sintéticos simples, cobrindo casos normais, bordas e entradas vazias.
+
+### 4. Funções de inadimplência (`test_inadimplencia.py`)
+Funções da sub-aba Inadimplência que dependem de conexão com o banco. Seguem o mesmo padrão de `test_banco_mock.py`: as funções são replicadas no arquivo de teste com `get_conn` como parâmetro explícito, e a conexão é substituída por `MagicMock`. Cobrem consultas de devedores, consultas de vendas em aberto, registro de avisos de cobrança e recebimento de pagamentos.
 
 ### O que não é testado automaticamente
 Telas, abas, dialogs e qualquer elemento que dependa de `st.*` (Streamlit) têm custo alto para automatizar e retorno baixo. Esses são cobertos por testes manuais na aplicação.
@@ -263,6 +268,47 @@ Recebe um DataFrame de itens de venda e retorna os top 10 produtos por média de
 
 ---
 
+### `test_inadimplencia.py` — 11 testes
+
+Cobre as funções da sub-aba Inadimplência. A conexão com o PostgreSQL é substituída por `MagicMock`.
+
+#### `buscar_inadimplentes()` — 2 casos
+Retorna DataFrame com clientes que possuem vendas com saldo em aberto, agrupados e ordenados por saldo total decrescente.
+
+| Caso | Resultado esperado |
+|---|---|
+| Colunas obrigatórias | Contém `cliente_id`, `cliente`, `vendas_em_aberto`, `saldo_total`, `mais_antiga` |
+| Sem inadimplentes | Retorna DataFrame vazio com as colunas corretas |
+
+#### `buscar_vendas_em_aberto(cliente_id)` — 2 casos
+Retorna DataFrame com as vendas em aberto de um cliente específico, ordenadas pela data mais antiga.
+
+| Caso | Resultado esperado |
+|---|---|
+| Colunas obrigatórias | Contém `venda_id`, `data`, `total`, `pago`, `saldo` |
+| Passa cliente_id correto | O valor `42` aparece nos parâmetros da query executada |
+
+#### `registrar_cobranca(venda_id, data_cobranca, observacao, usuario_id)` — 3 casos
+Insere um registro na tabela `vendas_cobranças` com data, observação e usuário responsável.
+
+| Caso | Resultado esperado |
+|---|---|
+| Execute chamado | `cursor.execute` chamado com INSERT em `vendas_cobranças` |
+| Commit chamado | `conn.commit()` é chamado |
+| Conexão fechada em exceção | `conn.close()` é chamado mesmo quando `cursor.execute` lança exceção |
+
+#### `registrar_pagamento(venda_id, valor, data_pagamento, observacao, usuario_id)` — 4 casos
+Insere um registro na tabela `vendas_pagamentos` com valor, data, observação e usuário responsável.
+
+| Caso | Resultado esperado |
+|---|---|
+| Execute chamado | `cursor.execute` chamado com INSERT em `vendas_pagamentos` |
+| Commit chamado | `conn.commit()` é chamado |
+| Conexão fechada em exceção | `conn.close()` é chamado mesmo quando `cursor.execute` lança exceção |
+| Validação de valor máximo | Valor superior ao saldo em aberto é detectado como inválido |
+
+---
+
 ## Refatorações realizadas no `app.py` para viabilizar os testes
 
 As mudanças abaixo melhoraram a testabilidade do código sem alterar nenhum comportamento da aplicação:
@@ -284,4 +330,5 @@ As mudanças abaixo melhoraram a testabilidade do código sem alterar nenhum com
 | `test_funcoes_puras.py` | 53 | ✅ Todos passando |
 | `test_banco_mock.py` | 25 | ✅ Todos passando |
 | `test_relatorios.py` | 19 | ✅ Todos passando |
-| **Total** | **97** | ✅ |
+| `test_inadimplencia.py` | 11 | ✅ Todos passando |
+| **Total** | **108** | ✅ |

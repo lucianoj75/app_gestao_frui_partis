@@ -1,7 +1,7 @@
 ---
 status: ![Status](https://img.shields.io/badge/Status-Operacional-brightgreen)
-version: 2.1.0
-last_updated: 2026-06-06
+version: 2.2.0
+last_updated: 2026-06-07
 ---
 
 # Sistema de Gestão Frui Partis
@@ -21,7 +21,7 @@ O sistema é organizado em quatro abas principais, acessíveis somente após aut
 - Valor de venda editável por item e suporte a desconto percentual
 - Campo de observações por item
 - Bloqueio de alteração de cliente enquanto houver itens no carrinho
-- Popup de pagamento: registro do valor pago e cálculo automático do saldo pendente
+- Popup de pagamento: registro do valor pago com INSERT em `vendas_pagamentos` e cálculo automático do saldo pendente
 - Baixa automática de estoque ao confirmar a venda
 
 ### Gestão de Produtos
@@ -36,7 +36,7 @@ O sistema é organizado em quatro abas principais, acessíveis somente após aut
 - Edição direta dos dados cadastrais na tabela
 
 ### Relatórios
-Três sub-abas independentes:
+Quatro sub-abas independentes:
 
 **Vendas**
 - Histórico completo com expansão por venda, exibindo itens, valores unitários, desconto e observações
@@ -50,6 +50,14 @@ Três sub-abas independentes:
 **Top 10 Produtos**
 - Ranking dos 10 produtos com maior média de unidades vendidas por mês
 - Colunas: quantidade média/mês, valor médio/mês e meses com venda
+
+**Inadimplência**
+- Métricas de topo: total em aberto, clientes devedores e data da dívida mais antiga
+- Tabela de clientes devedores com saldo total e número de vendas em aberto
+- Expansão por cliente com detalhamento de cada venda em aberto (total, valor pago, saldo)
+- Botão 📣 por venda para registrar aviso de cobrança com data e observação
+- Botão 💲 por venda para receber pagamento parcial ou total com data e observação
+- Saldos atualizados em tempo real após cada pagamento registrado
 
 ---
 
@@ -85,15 +93,17 @@ Três sub-abas independentes:
 
 ## Banco de Dados
 
-Banco **PostgreSQL** hospedado no **Supabase**, com cinco tabelas:
+Banco **PostgreSQL** hospedado no **Supabase**, com sete tabelas:
 
 | Tabela | Descrição |
 |---|---|
 | `usuarios` | Controle de acesso: e-mail, senha (hash bcrypt), status ativo/inativo, perfil admin, tokens de ativação e redefinição de senha |
 | `clientes` | Cadastro de clientes PF e PJ |
 | `produtos` | Cadastro de produtos com controle de estoque e status ativo/inativo |
-| `vendas` | Cabeçalho de cada venda: cliente, data, tema, total e valor pago |
+| `vendas` | Cabeçalho de cada venda: cliente, data, tema e total |
 | `vendas_itens` | Itens de cada venda: produto, quantidade, valor unitário, desconto, total e observações |
+| `vendas_pagamentos` | Histórico de pagamentos por venda: valor, data e observação — inclui o pagamento no ato da venda |
+| `vendas_cobranças` | Histórico de avisos de cobrança por venda: data do contato e observação |
 
 Todas as tabelas possuem campos de auditoria: `criado_por`, `criado_em`, `alterado_por` e `alterado_em`.
 
