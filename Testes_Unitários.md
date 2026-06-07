@@ -231,7 +231,7 @@ Persiste as edições feitas nas tabelas de produtos e clientes, protegendo colu
 
 ---
 
-### `test_relatorios.py` — 30 testes
+### `test_relatorios.py` — 35 testes
 
 Cobre as funções puras extraídas das abas de relatórios. Testadas com DataFrames sintéticos simples.
 
@@ -288,6 +288,17 @@ Retorna os 3 produtos mais vendidos (por quantidade) no mês informado.
 | Ordenação decrescente | Produto com maior quantidade aparece primeiro |
 | Mês sem vendas | Retorna DataFrame vazio com colunas corretas |
 | Produto líder correto | Produto com maior quantidade total no mês aparece em 1º |
+
+#### `calcular_top3_ano(df_vendas, df_itens, ano)` — 5 casos
+Retorna os 3 produtos mais vendidos (por quantidade) em todo o ano informado. Usado quando o filtro do Dashboard está em "Todos".
+
+| Caso | Resultado esperado |
+|---|---|
+| Máximo 3 produtos | Nunca retorna mais de 3 linhas mesmo com 4 produtos distintos |
+| Ordenação decrescente | Produto com maior quantidade total aparece primeiro |
+| Ano sem vendas | Retorna DataFrame vazio com colunas corretas sem erro |
+| Produto líder correto | Produto com maior soma anual aparece em 1º com quantidade correta |
+| Soma entre meses | Produto que vendeu em meses diferentes tem quantidades somadas corretamente |
 
 ---
 
@@ -352,6 +363,6 @@ As mudanças abaixo melhoraram a testabilidade do código sem alterar nenhum com
 |---|---|---|
 | `test_funcoes_puras.py` | 53 | ✅ Todos passando |
 | `test_banco_mock.py` | 25 | ✅ Todos passando |
-| `test_relatorios.py` | 30 | ✅ Todos passando |
+| `test_relatorios.py` | 35 | ✅ Todos passando |
 | `test_inadimplencia.py` | 11 | ✅ Todos passando |
-| **Total** | **119** | ✅ |
+| **Total** | **124** | ✅ |

@@ -1,6 +1,6 @@
 """
 Testes unitários para calcular_faturamento_mensal, calcular_top10_produtos,
-calcular_metricas_dashboard e calcular_top3_mes.
+calcular_metricas_dashboard, calcular_top3_mes e calcular_top3_ano.
 
 Como executar (da raiz do projeto):
     pytest tests/test_relatorios.py -v
@@ -136,6 +136,21 @@ def calcular_top3_mes(df_vendas, df_itens, mes, ano):
     return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
 
 
+def calcular_top3_ano(df_vendas, df_itens, ano):
+    df_v = df_vendas.copy()
+    df_v['Data_dt'] = pd.to_datetime(df_v['Data'], dayfirst=True, errors='coerce')
+    mask = df_v['Data_dt'].dt.year == ano
+    ids_ano = set(df_v[mask]['Cod_Venda'])
+
+    if not ids_ano:
+        return pd.DataFrame(columns=['Produto', 'Qtd. Vendida'])
+
+    itens_ano = df_itens[df_itens['Cod_Venda'].isin(ids_ano)]
+    agrup = itens_ano.groupby('Produto')['Qtd'].sum().reset_index()
+    agrup.columns = ['Produto', 'Qtd. Vendida']
+    return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
+
+
 # =============================================================================
 # Fixtures
 # =============================================================================
@@ -180,6 +195,25 @@ def dados_top3():
         {'Cod_Venda': 2, 'Produto': 'Maçã',   'Qtd': 15},
         {'Cod_Venda': 2, 'Produto': 'Banana', 'Qtd': 3},
         {'Cod_Venda': 2, 'Produto': 'Uva',    'Qtd': 8},
+    ])
+    return df_v, df_i
+
+
+@pytest.fixture
+def dados_top3_ano():
+    """Vendas distribuídas em dois meses do mesmo ano, com 4 produtos distintos."""
+    df_v = pd.DataFrame([
+        {'Cod_Venda': 1, 'Data': '05/01/2026', 'Total': 100.0},
+        {'Cod_Venda': 2, 'Data': '10/02/2026', 'Total': 200.0},
+        {'Cod_Venda': 3, 'Data': '15/02/2026', 'Total': 150.0},
+    ])
+    df_i = pd.DataFrame([
+        {'Cod_Venda': 1, 'Produto': 'Maçã',   'Qtd': 10},
+        {'Cod_Venda': 1, 'Produto': 'Pera',   'Qtd': 4},
+        {'Cod_Venda': 2, 'Produto': 'Maçã',   'Qtd': 15},
+        {'Cod_Venda': 2, 'Produto': 'Banana', 'Qtd': 6},
+        {'Cod_Venda': 3, 'Produto': 'Uva',    'Qtd': 2},
+        {'Cod_Venda': 3, 'Produto': 'Banana', 'Qtd': 9},
     ])
     return df_v, df_i
 
@@ -399,3 +433,45 @@ class TestCalcularTop3Mes:
         resultado = calcular_top3_mes(df_v, df_i, 6, 2026)
         assert resultado.iloc[0]['Produto'] == 'Maçã'
         assert resultado.iloc[0]['Qtd. Vendida'] == 25
+
+
+# =============================================================================
+# Testes: calcular_top3_ano
+# =============================================================================
+
+class TestCalcularTop3Ano:
+
+    def test_top3_ano_maximo_3(self, dados_top3_ano):
+        """Nunca retorna mais de 3 linhas mesmo com 4 produtos distintos."""
+        df_v, df_i = dados_top3_ano
+        resultado = calcular_top3_ano(df_v, df_i, 2026)
+        assert len(resultado) <= 3
+
+    def test_top3_ano_ordenacao(self, dados_top3_ano):
+        """Produto com maior quantidade aparece primeiro."""
+        df_v, df_i = dados_top3_ano
+        resultado = calcular_top3_ano(df_v, df_i, 2026)
+        qtds = resultado['Qtd. Vendida'].tolist()
+        assert qtds == sorted(qtds, reverse=True)
+
+    def test_top3_ano_sem_vendas(self, dados_top3_ano):
+        """Retorna DataFrame vazio sem erro quando o ano não tem vendas."""
+        df_v, df_i = dados_top3_ano
+        resultado = calcular_top3_ano(df_v, df_i, 2020)
+        assert resultado.empty
+        assert list(resultado.columns) == ['Produto', 'Qtd. Vendida']
+
+    def test_top3_ano_produto_lider(self, dados_top3_ano):
+        """Maçã soma 25 (10+15) e deve aparecer em primeiro lugar."""
+        df_v, df_i = dados_top3_ano
+        resultado = calcular_top3_ano(df_v, df_i, 2026)
+        assert resultado.iloc[0]['Produto'] == 'Maçã'
+        assert resultado.iloc[0]['Qtd. Vendida'] == 25
+
+    def test_top3_ano_soma_correta(self, dados_top3_ano):
+        """Banana acumula qtd de dois meses distintos: 6 + 9 = 15."""
+        df_v, df_i = dados_top3_ano
+        resultado = calcular_top3_ano(df_v, df_i, 2026)
+        banana = resultado[resultado['Produto'] == 'Banana']
+        assert not banana.empty
+        assert banana.iloc[0]['Qtd. Vendida'] == 15

@@ -1,6 +1,6 @@
 ---
 status: ![Status](https://img.shields.io/badge/Status-Operacional-brightgreen)
-version: 2.3.1
+version: 2.4.0
 last_updated: 2026-06-07
 ---
 
@@ -37,22 +37,21 @@ O sistema é organizado em quatro abas principais, acessíveis somente após aut
 - Edição direta dos dados cadastrais na tabela
 
 ### Relatórios
-Cinco sub-abas independentes:
+Quatro sub-abas independentes:
 
 **Dashboard**
-- Métricas do mês corrente com delta vs mês anterior: faturamento, quantidade de vendas e ticket médio
-- Delta positivo: verde ↑ | Delta negativo: vermelho ↓ | Delta zero: badge âmbar "Sem variação" | Sem vendas no mês: sem indicador
-- Top 3 produtos mais vendidos no mês (por quantidade)
-- Alerta de produtos com estoque zerado
+- Filtro de mês no topo (Janeiro até o mês corrente, em pt-BR) com opção "Todos" — controla todos os blocos
+- Métricas do período selecionado: faturamento, quantidade de vendas e ticket médio
+  - Com mês específico: exibe delta vs mês anterior (verde ↑ / vermelho ↓ / badge âmbar "Sem variação" / sem indicador quando sem vendas)
+  - Com "Todos": exibe totais do ano sem delta
+- Gráfico de linha interativo (Plotly) com evolução mensal da métrica selecionada (Faturamento, Qtd. Vendas ou Ticket Médio); ponto âmbar destaca o mês selecionado no filtro
+- Top 3 produtos mais vendidos no período (mês ou ano inteiro), por quantidade
+- Alerta de produtos ativos com estoque zerado
 
 **Vendas**
 - Histórico completo com expansão por venda, exibindo itens, valores unitários, desconto e observações
 - Filtros por cliente, intervalo de datas (até 31 dias) e pendência de pagamento
 - Métrica de faturamento total do período filtrado
-
-**Faturamento Mensal**
-- Tabela com faturamento, quantidade de vendas e ticket médio por mês do ano corrente
-- Filtro por mês com métricas consolidadas (faturamento, total de vendas, ticket médio geral)
 
 **Top 10 Produtos**
 - Ranking dos 10 produtos com maior média de unidades vendidas por mês

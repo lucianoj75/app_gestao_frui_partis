@@ -10,6 +10,7 @@ import smtplib
 import uuid
 import re
 import numpy as np
+import plotly.graph_objects as go
 import psycopg2
 import psycopg2.extras
 from sqlalchemy import create_engine, text
@@ -813,6 +814,25 @@ def calcular_top3_mes(df_vendas, df_itens, mes, ano):
     return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
 
 
+def calcular_top3_ano(df_vendas, df_itens, ano):
+    """Agrupa todos os itens de vendas do ano informado, soma quantidade por produto
+    e retorna DataFrame com colunas Produto e Qtd. Vendida (top 3, decrescente).
+    Retorna DataFrame vazio se não houver vendas no período.
+    Usar quando o filtro de mês estiver em 'Todos'."""
+    df_v = df_vendas.copy()
+    df_v['Data_dt'] = pd.to_datetime(df_v['Data'], dayfirst=True, errors='coerce')
+    mask = df_v['Data_dt'].dt.year == ano
+    ids_ano = set(df_v[mask]['Cod_Venda'])
+
+    if not ids_ano:
+        return pd.DataFrame(columns=['Produto', 'Qtd. Vendida'])
+
+    itens_ano = df_itens[df_itens['Cod_Venda'].isin(ids_ano)]
+    agrup = itens_ano.groupby('Produto')['Qtd'].sum().reset_index()
+    agrup.columns = ['Produto', 'Qtd. Vendida']
+    return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
+
+
 def processar_salvamento(df_editado, tabela, pk_col, usuario_logado):
     """Salva edições linha a linha, preservando campos de auditoria."""
     df_final = df_editado.copy()
@@ -1185,22 +1205,30 @@ with aba_relatorio:
     st.subheader("📈 Histórico e Relatórios")
     st.download_button("📥 Baixar Banco de Dados", data=preparar_download_dados(), file_name="backup_fruipartis.zip")
 
-    sub_dash, sub_vendas, sub_mensal, sub_top, sub_inadimplencia = st.tabs(["📊 Dashboard", "🧾 Vendas", "📅 Faturamento Mensal", "🏆 Top 10 Produtos", "⚠️ Inadimplência"])
+    sub_dash, sub_vendas, sub_top, sub_inadimplencia = st.tabs(["📊 Dashboard", "🧾 Vendas", "🏆 Top 10 Produtos", "⚠️ Inadimplência"])
 
     if df_v is not None and not df_v.empty:
         df_rep = df_v.merge(df_c[['Cod_Cliente', 'Nome']], on='Cod_Cliente', how='left').rename(columns={'Nome': 'Cliente'})
         df_rep = df_rep.merge(df_p[['Cod_Produto', 'Nome']], on='Cod_Produto', how='left').rename(columns={'Nome': 'Produto'})
 
-    # --- SUB-ABA DASHBOARD ---
+    # --- SUB-ABA DASHBOARD (unificada) ---
+    MESES_PT = {
+        1: "Janeiro", 2: "Fevereiro", 3: "Março", 4: "Abril",
+        5: "Maio", 6: "Junho", 7: "Julho", 8: "Agosto",
+        9: "Setembro", 10: "Outubro", 11: "Novembro", 12: "Dezembro"
+    }
+
     with sub_dash:
-        mes_atual = datetime.now().month
+        mes_agora = datetime.now().month
         ano_atual = datetime.now().year
+
+        opcoes_meses = ["Todos"] + [MESES_PT[m] for m in range(1, mes_agora + 1)]
+        filtro_mes_dash = st.selectbox("Mês", opcoes_meses, index=len(opcoes_meses) - 1, key="dash_mes")
 
         if df_v is None or df_v.empty:
             st.info("Nenhuma venda registrada ainda.")
         else:
             vendas_unique = df_v.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Total']]
-            metricas = calcular_metricas_dashboard(vendas_unique, mes_atual, ano_atual)
 
             def _fmt_delta_br(v):
                 """Delta monetário: None=oculto, 0=None (indicador externo), ±=verde/vermelho."""
@@ -1224,45 +1252,106 @@ with aba_relatorio:
                         unsafe_allow_html=True
                     )
 
-            fat_d = metricas['delta_fat']
-            qtd_d = metricas['delta_qtd']
-            tk_d  = metricas['delta_ticket']
-
-            d1, d2, d3 = st.columns(3)
-            d1.metric(
-                "Faturamento do mês",
-                formatar_br(metricas['faturamento']),
-                delta=_fmt_delta_br(fat_d),
-                delta_color="normal"
-            )
-            _zero_badge(d1, fat_d)
-
-            d2.metric(
-                "Vendas no mês",
-                str(metricas['qtd_vendas']),
-                delta=_delta_int(qtd_d),
-                delta_color="normal"
-            )
-            _zero_badge(d2, qtd_d)
-
-            d3.metric(
-                "Ticket médio",
-                formatar_br(metricas['ticket_medio']),
-                delta=_fmt_delta_br(tk_d),
-                delta_color="normal"
-            )
-            _zero_badge(d3, tk_d)
+            # --- Bloco 1: Métricas ---
+            mes_sel = None
+            if filtro_mes_dash == "Todos":
+                fat_total = float(vendas_unique['Total'].sum())
+                qtd_total = int(len(vendas_unique))
+                tk_total  = fat_total / qtd_total if qtd_total > 0 else 0.0
+                d1, d2, d3 = st.columns(3)
+                d1.metric("Faturamento do ano",  formatar_br(fat_total))
+                d2.metric("Vendas no ano",        str(qtd_total))
+                d3.metric("Ticket médio",         formatar_br(tk_total))
+            else:
+                mes_sel  = next(k for k, v in MESES_PT.items() if v == filtro_mes_dash)
+                metricas = calcular_metricas_dashboard(vendas_unique, mes_sel, ano_atual)
+                fat_d = metricas['delta_fat']
+                qtd_d = metricas['delta_qtd']
+                tk_d  = metricas['delta_ticket']
+                d1, d2, d3 = st.columns(3)
+                d1.metric("Faturamento do mês", formatar_br(metricas['faturamento']),
+                          delta=_fmt_delta_br(fat_d), delta_color="normal")
+                _zero_badge(d1, fat_d)
+                d2.metric("Vendas no mês", str(metricas['qtd_vendas']),
+                          delta=_delta_int(qtd_d), delta_color="normal")
+                _zero_badge(d2, qtd_d)
+                d3.metric("Ticket médio", formatar_br(metricas['ticket_medio']),
+                          delta=_fmt_delta_br(tk_d), delta_color="normal")
+                _zero_badge(d3, tk_d)
 
             st.divider()
-            st.markdown("### 🏆 Top 3 Produtos do Mês")
+
+            # --- Bloco 2: Gráfico de evolução mensal ---
+            metrica_sel = st.selectbox("Métrica", ["Faturamento", "Qtd. Vendas", "Ticket Médio"], key="dash_metrica")
+
+            df_fat = calcular_faturamento_mensal(vendas_unique, ano_atual)
+            df_fat = df_fat[df_fat['Mes'] <= mes_agora].copy()
+            df_fat['Mes_PT'] = df_fat['Mes'].map(MESES_PT)
+
+            col_map = {"Faturamento": "Faturamento", "Qtd. Vendas": "Qtd_Vendas", "Ticket Médio": "Ticket_Medio"}
+            col_y = col_map[metrica_sel]
+
+            def _fmt_hover(val, metrica):
+                if metrica in ("Faturamento", "Ticket Médio"):
+                    s = f"{val:,.2f}".replace(',', 'X').replace('.', ',').replace('X', '.')
+                    return f"R$ {s}"
+                return str(int(val))
+
+            marker_colors = []
+            marker_sizes  = []
+            for m in df_fat['Mes'].tolist():
+                if mes_sel and m == mes_sel:
+                    marker_colors.append('#f59e0b')
+                    marker_sizes.append(14)
+                else:
+                    marker_colors.append('#3b82f6')
+                    marker_sizes.append(7)
+
+            hover_texts = [_fmt_hover(v, metrica_sel) for v in df_fat[col_y]]
+
+            fig = go.Figure()
+            fig.add_trace(go.Scatter(
+                x=df_fat['Mes_PT'],
+                y=df_fat[col_y],
+                mode='lines+markers',
+                line=dict(color='#3b82f6', width=2),
+                marker=dict(color=marker_colors, size=marker_sizes),
+                text=hover_texts,
+                hovertemplate='%{x}: %{text}<extra></extra>',
+            ))
+
+            if metrica_sel in ("Faturamento", "Ticket Médio"):
+                yaxis_cfg = dict(tickprefix="R$ ", tickformat=",.2f")
+            else:
+                yaxis_cfg = dict(tickformat="d")
+
+            fig.update_layout(
+                xaxis_title=None,
+                yaxis_title=metrica_sel,
+                yaxis=yaxis_cfg,
+                margin=dict(l=10, r=10, t=20, b=10),
+                height=320,
+                hovermode="x unified",
+            )
+            st.plotly_chart(fig, use_container_width=True)
+
+            st.divider()
+
+            # --- Bloco 3: Top 3 Produtos ---
+            st.markdown("### 🏆 Top 3 Produtos")
             df_itens_dash = df_rep[['Cod_Venda', 'Produto', 'Qtd']].copy()
-            top3 = calcular_top3_mes(vendas_unique, df_itens_dash, mes_atual, ano_atual)
+            if filtro_mes_dash == "Todos":
+                top3 = calcular_top3_ano(vendas_unique, df_itens_dash, ano_atual)
+            else:
+                top3 = calcular_top3_mes(vendas_unique, df_itens_dash, mes_sel, ano_atual)
             if top3.empty:
-                st.info("Nenhuma venda registrada neste mês.")
+                st.info("Nenhuma venda registrada neste período.")
             else:
                 st.dataframe(top3, hide_index=True, width="stretch")
 
             st.divider()
+
+            # --- Bloco 4: Estoque zerado ---
             st.markdown("### ⚠️ Produtos com Estoque Zerado")
             if df_p is not None and not df_p.empty:
                 est_zero = df_p[
@@ -1349,40 +1438,6 @@ with aba_relatorio:
                         itens['Vlr. Unitário'] = itens['Vlr_Unitario'].apply(formatar_br)
                         itens['Vlr. Total']    = itens['Total_Item'].apply(formatar_br)
                         st.table(itens[['Produto', 'Qtd', 'Vlr. Unitário', 'Desconto', 'Vlr. Total', 'Observacoes']])
-
-    with sub_mensal:
-        if df_v is None or df_v.empty:
-            st.info("Nenhuma venda registrada ainda.")
-        else:
-            ano_atual = datetime.now().year
-            mes_atual = datetime.now().month
-
-            vendas_cab_m = df_rep.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Total']].copy()
-            df_mensal = calcular_faturamento_mensal(vendas_cab_m, ano_atual)
-            df_mensal = df_mensal[df_mensal['Mes'] <= mes_atual]
-
-            meses_opcoes = df_mensal['Mes_Nome'].tolist()
-            filtro_mes   = st.selectbox("Filtrar por mês (opcional)", ["Todos"] + meses_opcoes)
-
-            df_exibir = df_mensal.copy()
-            if filtro_mes != "Todos":
-                df_exibir = df_exibir[df_exibir['Mes_Nome'] == filtro_mes]
-
-            total_fat = df_exibir['Faturamento'].sum()
-            total_qtd = int(df_exibir['Qtd_Vendas'].sum())
-            ticket_geral = total_fat / total_qtd if total_qtd > 0 else 0
-
-            m1, m2, m3 = st.columns(3)
-            m1.metric("Faturamento",    formatar_br(total_fat))
-            m2.metric("Total de Vendas", str(total_qtd))
-            m3.metric("Ticket Médio",   formatar_br(ticket_geral))
-
-            df_tabela = df_exibir[['Mes_Nome', 'Qtd_Vendas', 'Faturamento', 'Ticket_Medio']].copy()
-            df_tabela.columns = ['Mês', 'Qtd. Vendas', 'Faturamento (R$)', 'Ticket Médio (R$)']
-            df_tabela['Qtd. Vendas']        = df_tabela['Qtd. Vendas'].astype(int)
-            df_tabela['Faturamento (R$)']   = df_tabela['Faturamento (R$)'].apply(formatar_df)
-            df_tabela['Ticket Médio (R$)']  = df_tabela['Ticket Médio (R$)'].apply(formatar_df)
-            st.dataframe(df_tabela, hide_index=True, width="stretch")
 
     with sub_top:
         if df_v is None or df_v.empty:
