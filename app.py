@@ -1341,7 +1341,7 @@ with aba_relatorio:
                 height=320,
                 hovermode="x unified",
             )
-            st.plotly_chart(fig, use_container_width=True)
+            st.plotly_chart(fig, width='stretch')
 
             st.divider()
 
