@@ -1,6 +1,6 @@
 ---
 status: ![Status](https://img.shields.io/badge/Status-Operacional-brightgreen)
-version: 2.2.0
+version: 2.3.0
 last_updated: 2026-06-07
 ---
 
@@ -26,7 +26,8 @@ O sistema é organizado em quatro abas principais, acessíveis somente após aut
 
 ### Gestão de Produtos
 - Cadastro de novos produtos (nome, preço, estoque inicial, observações)
-- Edição direta na tabela: preço, nome, estoque, observações e status ativo/inativo
+- Edição direta na tabela: preço, custo, nome, estoque, observações e status ativo/inativo
+- Campo **Custo (R$)** editável — permite calcular margem de lucro no relatório Top 10 Produtos
 - Inativação sem exclusão — produtos inativos não aparecem para venda mas permanecem no histórico
 - Aviso visual de alterações não salvas
 
@@ -36,7 +37,12 @@ O sistema é organizado em quatro abas principais, acessíveis somente após aut
 - Edição direta dos dados cadastrais na tabela
 
 ### Relatórios
-Quatro sub-abas independentes:
+Cinco sub-abas independentes:
+
+**Dashboard**
+- Métricas do mês corrente com delta vs mês anterior: faturamento, quantidade de vendas e ticket médio
+- Top 3 produtos mais vendidos no mês (por quantidade)
+- Alerta de produtos com estoque zerado
 
 **Vendas**
 - Histórico completo com expansão por venda, exibindo itens, valores unitários, desconto e observações
@@ -49,7 +55,8 @@ Quatro sub-abas independentes:
 
 **Top 10 Produtos**
 - Ranking dos 10 produtos com maior média de unidades vendidas por mês
-- Colunas: quantidade média/mês, valor médio/mês e meses com venda
+- Colunas: quantidade média/mês, valor médio/mês, meses com venda, margem % e margem R$
+- Margem calculada automaticamente quando o custo do produto está cadastrado
 
 **Inadimplência**
 - Métricas de topo: total em aberto, clientes devedores e data da dívida mais antiga
@@ -99,7 +106,7 @@ Banco **PostgreSQL** hospedado no **Supabase**, com sete tabelas:
 |---|---|
 | `usuarios` | Controle de acesso: e-mail, senha (hash bcrypt), status ativo/inativo, perfil admin, tokens de ativação e redefinição de senha |
 | `clientes` | Cadastro de clientes PF e PJ |
-| `produtos` | Cadastro de produtos com controle de estoque e status ativo/inativo |
+| `produtos` | Cadastro de produtos com controle de estoque, status ativo/inativo e custo unitário |
 | `vendas` | Cabeçalho de cada venda: cliente, data, tema e total |
 | `vendas_itens` | Itens de cada venda: produto, quantidade, valor unitário, desconto, total e observações |
 | `vendas_pagamentos` | Histórico de pagamentos por venda: valor, data e observação — inclui o pagamento no ato da venda |

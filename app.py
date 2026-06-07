@@ -717,8 +717,9 @@ def calcular_faturamento_mensal(df_vendas, ano):
     return resultado
 
 
-def calcular_top10_produtos(df_itens):
-    """Retorna DataFrame com os top 10 produtos por média de unidades vendidas por mês."""
+def calcular_top10_produtos(df_itens, df_produtos=None):
+    """Retorna DataFrame com os top 10 produtos por média de unidades vendidas por mês.
+    Se df_produtos (com colunas Nome e custo) for fornecido, inclui colunas Margem_% e Margem_R$."""
     df = df_itens.copy()
     df['Data_dt'] = pd.to_datetime(df['Data'], dayfirst=True, errors='coerce')
     df['Ano_Mes'] = df['Data_dt'].dt.to_period('M')
@@ -733,7 +734,83 @@ def calcular_top10_produtos(df_itens):
     ).reset_index()
     top10 = media_mensal.sort_values('Qtd_Media', ascending=False).head(10).reset_index(drop=True)
     top10.index += 1
+
+    # Colunas de margem
+    if df_produtos is not None and not df_produtos.empty and 'custo' in df_produtos.columns:
+        df_custo = df_produtos[['Nome', 'custo']].drop_duplicates('Nome')
+        top10 = top10.merge(df_custo, left_on='Produto', right_on='Nome', how='left').drop(columns='Nome')
+
+        def _margem_pct(row):
+            c, vm = row['custo'], row['Valor_Medio']
+            if pd.isna(c) or c == 0 or vm == 0:
+                return "Custo não cadastrado"
+            pct = round(((vm - c) / vm) * 100, 1)
+            return f"{pct:.1f}%".replace('.', ',')
+
+        def _margem_r(row):
+            c, vm = row['custo'], row['Valor_Medio']
+            if pd.isna(c) or c == 0:
+                return "Custo não cadastrado"
+            return formatar_df(vm - c)
+
+        top10['Margem_%']  = top10.apply(_margem_pct, axis=1)
+        top10['Margem_R$'] = top10.apply(_margem_r,   axis=1)
+        top10 = top10.drop(columns='custo')
+    else:
+        top10['Margem_%']  = "Custo não cadastrado"
+        top10['Margem_R$'] = "Custo não cadastrado"
+
     return top10
+
+
+def calcular_metricas_dashboard(df_vendas, mes, ano):
+    """Retorna dict com faturamento, qtd_vendas e ticket_medio para o mês/ano informado,
+    mais deltas vs mês anterior. Retorna zeros se não houver vendas no período."""
+    df = df_vendas.copy()
+    df['Data_dt'] = pd.to_datetime(df['Data'], dayfirst=True, errors='coerce')
+
+    mask_atual = (df['Data_dt'].dt.month == mes) & (df['Data_dt'].dt.year == ano)
+    mes_ant, ano_ant = (12, ano - 1) if mes == 1 else (mes - 1, ano)
+    mask_ant  = (df['Data_dt'].dt.month == mes_ant) & (df['Data_dt'].dt.year == ano_ant)
+
+    df_atual = df[mask_atual]
+    df_ant   = df[mask_ant]
+
+    fat_atual = float(df_atual['Total'].sum())
+    qtd_atual = int(len(df_atual))
+    tk_atual  = fat_atual / qtd_atual if qtd_atual > 0 else 0.0
+
+    fat_ant   = float(df_ant['Total'].sum())
+    qtd_ant   = int(len(df_ant))
+    tk_ant    = fat_ant / qtd_ant if qtd_ant > 0 else 0.0
+
+    # Delta só é exibido quando há vendas no mês atual
+    tem_atual = qtd_atual > 0
+    return {
+        'faturamento':  fat_atual,
+        'qtd_vendas':   qtd_atual,
+        'ticket_medio': tk_atual,
+        'delta_fat':    fat_atual - fat_ant if tem_atual else None,
+        'delta_qtd':    qtd_atual - qtd_ant if tem_atual else None,
+        'delta_ticket': tk_atual  - tk_ant  if tem_atual else None,
+    }
+
+
+def calcular_top3_mes(df_vendas, df_itens, mes, ano):
+    """Retorna DataFrame com Produto e Qtd. Vendida (top 3, decrescente) para o mês/ano informado.
+    Retorna DataFrame vazio se não houver vendas no período."""
+    df_v = df_vendas.copy()
+    df_v['Data_dt'] = pd.to_datetime(df_v['Data'], dayfirst=True, errors='coerce')
+    mask = (df_v['Data_dt'].dt.month == mes) & (df_v['Data_dt'].dt.year == ano)
+    ids_mes = set(df_v[mask]['Cod_Venda'])
+
+    if not ids_mes:
+        return pd.DataFrame(columns=['Produto', 'Qtd. Vendida'])
+
+    itens_mes = df_itens[df_itens['Cod_Venda'].isin(ids_mes)]
+    agrup = itens_mes.groupby('Produto')['Qtd'].sum().reset_index()
+    agrup.columns = ['Produto', 'Qtd. Vendida']
+    return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
 
 
 def processar_salvamento(df_editado, tabela, pk_col, usuario_logado):
@@ -1069,6 +1146,7 @@ with aba_gestao_p:
                 "Cod_Produto":  st.column_config.NumberColumn("ID", disabled=True, format="%d"),
                 "Status":       st.column_config.CheckboxColumn("Ativo", default=True),
                 "Preco":        st.column_config.NumberColumn("Preço", format="%.2f", min_value=0.01),
+                "custo":        st.column_config.NumberColumn("Custo (R$)", format="%.2f", min_value=0.0),
                 "Estoque Atual": st.column_config.NumberColumn("Estoque Atual", format="%d"),
                 **colunas_ocultar
             })
@@ -1107,11 +1185,71 @@ with aba_relatorio:
     st.subheader("📈 Histórico e Relatórios")
     st.download_button("📥 Baixar Banco de Dados", data=preparar_download_dados(), file_name="backup_fruipartis.zip")
 
-    sub_vendas, sub_mensal, sub_top, sub_inadimplencia = st.tabs(["🧾 Vendas", "📅 Faturamento Mensal", "🏆 Top 10 Produtos", "⚠️ Inadimplência"])
+    sub_dash, sub_vendas, sub_mensal, sub_top, sub_inadimplencia = st.tabs(["📊 Dashboard", "🧾 Vendas", "📅 Faturamento Mensal", "🏆 Top 10 Produtos", "⚠️ Inadimplência"])
 
     if df_v is not None and not df_v.empty:
         df_rep = df_v.merge(df_c[['Cod_Cliente', 'Nome']], on='Cod_Cliente', how='left').rename(columns={'Nome': 'Cliente'})
         df_rep = df_rep.merge(df_p[['Cod_Produto', 'Nome']], on='Cod_Produto', how='left').rename(columns={'Nome': 'Produto'})
+
+    # --- SUB-ABA DASHBOARD ---
+    with sub_dash:
+        mes_atual = datetime.now().month
+        ano_atual = datetime.now().year
+
+        if df_v is None or df_v.empty:
+            st.info("Nenhuma venda registrada ainda.")
+        else:
+            vendas_unique = df_v.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Total']]
+            metricas = calcular_metricas_dashboard(vendas_unique, mes_atual, ano_atual)
+
+            def _fmt_delta_br(v):
+                if v is None:
+                    return None
+                sinal = "+" if v >= 0 else ""
+                return f"{sinal}{formatar_br(v)}"
+
+            d1, d2, d3 = st.columns(3)
+            d1.metric(
+                "Faturamento do mês",
+                formatar_br(metricas['faturamento']),
+                delta=_fmt_delta_br(metricas['delta_fat']),
+                delta_color="normal"
+            )
+            d2.metric(
+                "Vendas no mês",
+                str(metricas['qtd_vendas']),
+                delta=metricas['delta_qtd'],
+                delta_color="normal"
+            )
+            d3.metric(
+                "Ticket médio",
+                formatar_br(metricas['ticket_medio']),
+                delta=_fmt_delta_br(metricas['delta_ticket']),
+                delta_color="normal"
+            )
+
+            st.divider()
+            st.markdown("### 🏆 Top 3 Produtos do Mês")
+            df_itens_dash = df_v[['Cod_Venda', 'Produto', 'Qtd']].copy()
+            # df_v ainda não tem coluna 'Produto' aqui; usa df_rep quando disponível
+            df_itens_dash = df_rep[['Cod_Venda', 'Produto', 'Qtd']].copy()
+            top3 = calcular_top3_mes(vendas_unique, df_itens_dash, mes_atual, ano_atual)
+            if top3.empty:
+                st.info("Nenhuma venda registrada neste mês.")
+            else:
+                st.dataframe(top3, hide_index=True, width="stretch")
+
+            st.divider()
+            st.markdown("### ⚠️ Produtos com Estoque Zerado")
+            if df_p is not None and not df_p.empty:
+                est_zero = df_p[
+                    (df_p['Status'] == True) & (df_p['Estoque Atual'] == 0)
+                ][['Nome', 'Estoque Atual']].copy()
+                est_zero.columns = ['Produto', 'Estoque']
+                if est_zero.empty:
+                    st.success("Nenhum produto com estoque zerado.")
+                else:
+                    st.dataframe(est_zero, hide_index=True, width="stretch")
 
     with sub_vendas:
         if df_v is None or df_v.empty:
@@ -1227,8 +1365,8 @@ with aba_relatorio:
         if df_v is None or df_v.empty:
             st.info("Nenhuma venda registrada ainda.")
         else:
-            top10 = calcular_top10_produtos(df_rep)
-            top10.columns = ['Produto', 'Qtd. Média/Mês', 'Valor Médio/Mês (R$)', 'Meses c/ Venda']
+            top10 = calcular_top10_produtos(df_rep, df_p)
+            top10.columns = ['Produto', 'Qtd. Média/Mês', 'Valor Médio/Mês (R$)', 'Meses c/ Venda', 'Margem %', 'Margem R$']
             top10['Qtd. Média/Mês']        = top10['Qtd. Média/Mês'].round(1)
             top10['Valor Médio/Mês (R$)']  = top10['Valor Médio/Mês (R$)'].apply(formatar_df)
             top10['Meses c/ Venda']        = top10['Meses c/ Venda'].astype(int)

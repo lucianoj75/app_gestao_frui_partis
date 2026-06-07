@@ -1,5 +1,6 @@
 """
-Testes unitários para calcular_faturamento_mensal e calcular_top10_produtos.
+Testes unitários para calcular_faturamento_mensal, calcular_top10_produtos,
+calcular_metricas_dashboard e calcular_top3_mes.
 
 Como executar (da raiz do projeto):
     pytest tests/test_relatorios.py -v
@@ -7,6 +8,18 @@ Como executar (da raiz do projeto):
 
 import pandas as pd
 import pytest
+
+
+# =============================================================================
+# Helpers (réplicas do app.py)
+# =============================================================================
+
+def formatar_df(valor):
+    """Para uso em st.dataframe — texto puro, sem escape de $."""
+    try:
+        return f"R$ {float(valor):,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+    except Exception:
+        return valor
 
 
 # =============================================================================
@@ -35,7 +48,7 @@ def calcular_faturamento_mensal(df_vendas, ano):
     return resultado
 
 
-def calcular_top10_produtos(df_itens):
+def calcular_top10_produtos(df_itens, df_produtos=None):
     df = df_itens.copy()
     df['Data_dt'] = pd.to_datetime(df['Data'], dayfirst=True, errors='coerce')
     df['Ano_Mes'] = df['Data_dt'].dt.to_period('M')
@@ -50,7 +63,77 @@ def calcular_top10_produtos(df_itens):
     ).reset_index()
     top10 = media_mensal.sort_values('Qtd_Media', ascending=False).head(10).reset_index(drop=True)
     top10.index += 1
+
+    if df_produtos is not None and not df_produtos.empty and 'custo' in df_produtos.columns:
+        df_custo = df_produtos[['Nome', 'custo']].drop_duplicates('Nome')
+        top10 = top10.merge(df_custo, left_on='Produto', right_on='Nome', how='left').drop(columns='Nome')
+
+        def _margem_pct(row):
+            c, vm = row['custo'], row['Valor_Medio']
+            if pd.isna(c) or c == 0 or vm == 0:
+                return "Custo não cadastrado"
+            pct = round(((vm - c) / vm) * 100, 1)
+            return f"{pct:.1f}%".replace('.', ',')
+
+        def _margem_r(row):
+            c, vm = row['custo'], row['Valor_Medio']
+            if pd.isna(c) or c == 0:
+                return "Custo não cadastrado"
+            return formatar_df(vm - c)
+
+        top10['Margem_%']  = top10.apply(_margem_pct, axis=1)
+        top10['Margem_R$'] = top10.apply(_margem_r,   axis=1)
+        top10 = top10.drop(columns='custo')
+    else:
+        top10['Margem_%']  = "Custo não cadastrado"
+        top10['Margem_R$'] = "Custo não cadastrado"
+
     return top10
+
+
+def calcular_metricas_dashboard(df_vendas, mes, ano):
+    df = df_vendas.copy()
+    df['Data_dt'] = pd.to_datetime(df['Data'], dayfirst=True, errors='coerce')
+
+    mask_atual = (df['Data_dt'].dt.month == mes) & (df['Data_dt'].dt.year == ano)
+    mes_ant, ano_ant = (12, ano - 1) if mes == 1 else (mes - 1, ano)
+    mask_ant = (df['Data_dt'].dt.month == mes_ant) & (df['Data_dt'].dt.year == ano_ant)
+
+    df_atual = df[mask_atual]
+    df_ant   = df[mask_ant]
+
+    fat_atual = float(df_atual['Total'].sum())
+    qtd_atual = int(len(df_atual))
+    tk_atual  = fat_atual / qtd_atual if qtd_atual > 0 else 0.0
+
+    fat_ant   = float(df_ant['Total'].sum())
+    qtd_ant   = int(len(df_ant))
+    tk_ant    = fat_ant / qtd_ant if qtd_ant > 0 else 0.0
+
+    tem_atual = qtd_atual > 0
+    return {
+        'faturamento':  fat_atual,
+        'qtd_vendas':   qtd_atual,
+        'ticket_medio': tk_atual,
+        'delta_fat':    fat_atual - fat_ant if tem_atual else None,
+        'delta_qtd':    qtd_atual - qtd_ant if tem_atual else None,
+        'delta_ticket': tk_atual  - tk_ant  if tem_atual else None,
+    }
+
+
+def calcular_top3_mes(df_vendas, df_itens, mes, ano):
+    df_v = df_vendas.copy()
+    df_v['Data_dt'] = pd.to_datetime(df_v['Data'], dayfirst=True, errors='coerce')
+    mask = (df_v['Data_dt'].dt.month == mes) & (df_v['Data_dt'].dt.year == ano)
+    ids_mes = set(df_v[mask]['Cod_Venda'])
+
+    if not ids_mes:
+        return pd.DataFrame(columns=['Produto', 'Qtd. Vendida'])
+
+    itens_mes = df_itens[df_itens['Cod_Venda'].isin(ids_mes)]
+    agrup = itens_mes.groupby('Produto')['Qtd'].sum().reset_index()
+    agrup.columns = ['Produto', 'Qtd. Vendida']
+    return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
 
 
 # =============================================================================
@@ -74,6 +157,31 @@ def itens_simples():
         {'Produto': 'Pera',  'Data': '01/01/2025', 'Qtd': 5,  'Total_Item': 25.0},
         {'Produto': 'Uva',   'Data': '01/01/2025', 'Qtd': 3,  'Total_Item': 15.0},
     ])
+
+
+@pytest.fixture
+def produtos_com_custo():
+    return pd.DataFrame([
+        {'Nome': 'Maçã', 'custo': 3.0},
+        {'Nome': 'Pera', 'custo': None},
+        {'Nome': 'Uva',  'custo': 0.0},
+    ])
+
+
+@pytest.fixture
+def dados_top3():
+    df_v = pd.DataFrame([
+        {'Cod_Venda': 1, 'Data': '01/06/2026', 'Total': 100.0},
+        {'Cod_Venda': 2, 'Data': '15/06/2026', 'Total': 200.0},
+    ])
+    df_i = pd.DataFrame([
+        {'Cod_Venda': 1, 'Produto': 'Maçã',   'Qtd': 10},
+        {'Cod_Venda': 1, 'Produto': 'Pera',   'Qtd': 5},
+        {'Cod_Venda': 2, 'Produto': 'Maçã',   'Qtd': 15},
+        {'Cod_Venda': 2, 'Produto': 'Banana', 'Qtd': 3},
+        {'Cod_Venda': 2, 'Produto': 'Uva',    'Qtd': 8},
+    ])
+    return df_v, df_i
 
 
 # =============================================================================
@@ -151,7 +259,8 @@ class TestCalcularTop10Produtos:
 
     def test_colunas_obrigatorias(self, itens_simples):
         resultado = calcular_top10_produtos(itens_simples)
-        assert list(resultado.columns) == ['Produto', 'Qtd_Media', 'Valor_Medio', 'Meses_Ativos']
+        assert {'Produto', 'Qtd_Media', 'Valor_Medio', 'Meses_Ativos',
+                'Margem_%', 'Margem_R$'}.issubset(resultado.columns)
 
     def test_ordenado_por_qtd_media_decrescente(self, itens_simples):
         resultado = calcular_top10_produtos(itens_simples)
@@ -200,3 +309,93 @@ class TestCalcularTop10Produtos:
         resultado = calcular_top10_produtos(itens_simples)
         maca = resultado[resultado['Produto'] == 'Maçã'].iloc[0]
         assert maca['Meses_Ativos'] == 2
+
+    def test_top10_colunas_com_margem(self, itens_simples, produtos_com_custo):
+        resultado = calcular_top10_produtos(itens_simples, produtos_com_custo)
+        assert 'Margem_%'  in resultado.columns
+        assert 'Margem_R$' in resultado.columns
+
+    def test_top10_margem_calculada(self, itens_simples, produtos_com_custo):
+        # Maçã: Valor_Medio = (50 + 100) / 2 = 75.0; custo = 3.0
+        # Margem% = (75 - 3) / 75 * 100 = 96.0%   Margem_R$ = 72.0
+        resultado = calcular_top10_produtos(itens_simples, produtos_com_custo)
+        maca = resultado[resultado['Produto'] == 'Maçã'].iloc[0]
+        assert maca['Margem_%']  == '96,0%'
+        assert maca['Margem_R$'] == formatar_df(72.0)
+
+    def test_top10_sem_custo(self, itens_simples, produtos_com_custo):
+        # Pera tem custo = None
+        resultado = calcular_top10_produtos(itens_simples, produtos_com_custo)
+        pera = resultado[resultado['Produto'] == 'Pera'].iloc[0]
+        assert pera['Margem_%']  == 'Custo não cadastrado'
+        assert pera['Margem_R$'] == 'Custo não cadastrado'
+
+    def test_top10_custo_zero(self, itens_simples, produtos_com_custo):
+        # Uva tem custo = 0
+        resultado = calcular_top10_produtos(itens_simples, produtos_com_custo)
+        uva = resultado[resultado['Produto'] == 'Uva'].iloc[0]
+        assert uva['Margem_%']  == 'Custo não cadastrado'
+        assert uva['Margem_R$'] == 'Custo não cadastrado'
+
+
+# =============================================================================
+# Testes: calcular_metricas_dashboard
+# =============================================================================
+
+class TestCalcularMetricasDashboard:
+
+    def test_metricas_mes_com_vendas(self):
+        df = pd.DataFrame([
+            {'Cod_Venda': 1, 'Data': '01/06/2026', 'Total': 300.0},
+            {'Cod_Venda': 2, 'Data': '15/06/2026', 'Total': 200.0},
+        ])
+        result = calcular_metricas_dashboard(df, 6, 2026)
+        assert result['faturamento']  == pytest.approx(500.0)
+        assert result['qtd_vendas']   == 2
+        assert result['ticket_medio'] == pytest.approx(250.0)
+
+    def test_metricas_mes_sem_vendas(self):
+        df = pd.DataFrame([
+            {'Cod_Venda': 1, 'Data': '01/01/2026', 'Total': 100.0},
+        ])
+        result = calcular_metricas_dashboard(df, 6, 2026)
+        assert result['faturamento']  == 0
+        assert result['qtd_vendas']   == 0
+        assert result['delta_fat']    is None
+        assert result['delta_qtd']    is None
+
+    def test_metricas_ticket_zero_sem_vendas(self):
+        df = pd.DataFrame(columns=['Cod_Venda', 'Data', 'Total'])
+        result = calcular_metricas_dashboard(df, 6, 2026)
+        assert result['ticket_medio'] == 0
+
+
+# =============================================================================
+# Testes: calcular_top3_mes
+# =============================================================================
+
+class TestCalcularTop3Mes:
+
+    def test_top3_maximo_3_produtos(self, dados_top3):
+        df_v, df_i = dados_top3
+        resultado = calcular_top3_mes(df_v, df_i, 6, 2026)
+        assert len(resultado) <= 3
+
+    def test_top3_ordenacao(self, dados_top3):
+        df_v, df_i = dados_top3
+        resultado = calcular_top3_mes(df_v, df_i, 6, 2026)
+        qtds = resultado['Qtd. Vendida'].tolist()
+        assert qtds == sorted(qtds, reverse=True)
+
+    def test_top3_mes_sem_vendas(self, dados_top3):
+        df_v, df_i = dados_top3
+        resultado = calcular_top3_mes(df_v, df_i, 1, 2026)
+        assert resultado.empty
+        assert list(resultado.columns) == ['Produto', 'Qtd. Vendida']
+
+    def test_top3_produto_lider(self, dados_top3):
+        df_v, df_i = dados_top3
+        # Maçã: Cod_Venda 1 (qtd=10) + Cod_Venda 2 (qtd=15) = 25
+        resultado = calcular_top3_mes(df_v, df_i, 6, 2026)
+        assert resultado.iloc[0]['Produto'] == 'Maçã'
+        assert resultado.iloc[0]['Qtd. Vendida'] == 25

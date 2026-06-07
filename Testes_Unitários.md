@@ -231,7 +231,7 @@ Persiste as edições feitas nas tabelas de produtos e clientes, protegendo colu
 
 ---
 
-### `test_relatorios.py` — 19 testes
+### `test_relatorios.py` — 30 testes
 
 Cobre as funções puras extraídas das abas de relatórios. Testadas com DataFrames sintéticos simples.
 
@@ -251,12 +251,12 @@ Recebe um DataFrame de vendas e um ano, e retorna um DataFrame com 12 meses, fat
 | Ticket médio zero sem vendas | Nenhum mês vazio tem ticket > 0 |
 | Múltiplas vendas no mesmo mês | Soma, contagem e ticket médio corretos |
 
-#### `calcular_top10_produtos(df_itens)` — 9 casos
-Recebe um DataFrame de itens de venda e retorna os top 10 produtos por média de unidades vendidas por mês.
+#### `calcular_top10_produtos(df_itens, df_produtos)` — 13 casos
+Recebe um DataFrame de itens de venda e (opcionalmente) um DataFrame de produtos com custo. Retorna os top 10 por média de unidades, sempre incluindo colunas `Margem_%` e `Margem_R$`.
 
 | Caso | Resultado esperado |
 |---|---|
-| Colunas obrigatórias | Contém `Produto`, `Qtd_Media`, `Valor_Medio`, `Meses_Ativos` |
+| Colunas obrigatórias | Contém `Produto`, `Qtd_Media`, `Valor_Medio`, `Meses_Ativos`, `Margem_%`, `Margem_R$` |
 | Ordenação decrescente | `Qtd_Media` em ordem decrescente |
 | Índice começa em 1 | Primeiro índice é 1 (ranking) |
 | Produto líder correto | Produto com maior média aparece em primeiro |
@@ -265,6 +265,29 @@ Recebe um DataFrame de itens de venda e retorna os top 10 produtos por média de
 | Produto único | Retorna 1 linha com os valores corretos |
 | Média mensal calculada | Média de unidades entre os meses com venda |
 | Meses ativos corretos | Conta corretamente os meses em que o produto vendeu |
+| Colunas de margem presentes | `Margem_%` e `Margem_R$` sempre presentes |
+| Margem calculada corretamente | Produto com custo retorna margem % e R$ corretos |
+| Custo nulo → sem margem | Produto com custo `None` exibe `"Custo não cadastrado"` |
+| Custo zero → sem margem | Produto com custo `0` exibe `"Custo não cadastrado"` |
+
+#### `calcular_metricas_dashboard(df_vendas, mes, ano)` — 3 casos
+Retorna dicionário com faturamento, qtd_vendas, ticket_medio e deltas vs mês anterior.
+
+| Caso | Resultado esperado |
+|---|---|
+| Mês com vendas | Faturamento, qtd_vendas e ticket_medio corretos |
+| Mês sem vendas | Retorna zeros e delta `None` sem erro |
+| Sem divisão por zero | ticket_medio = 0 quando qtd_vendas = 0 |
+
+#### `calcular_top3_mes(df_vendas, df_itens, mes, ano)` — 4 casos
+Retorna os 3 produtos mais vendidos (por quantidade) no mês informado.
+
+| Caso | Resultado esperado |
+|---|---|
+| Máximo 3 produtos | Nunca retorna mais de 3 linhas |
+| Ordenação decrescente | Produto com maior quantidade aparece primeiro |
+| Mês sem vendas | Retorna DataFrame vazio com colunas corretas |
+| Produto líder correto | Produto com maior quantidade total no mês aparece em 1º |
 
 ---
 
@@ -329,6 +352,6 @@ As mudanças abaixo melhoraram a testabilidade do código sem alterar nenhum com
 |---|---|---|
 | `test_funcoes_puras.py` | 53 | ✅ Todos passando |
 | `test_banco_mock.py` | 25 | ✅ Todos passando |
-| `test_relatorios.py` | 19 | ✅ Todos passando |
+| `test_relatorios.py` | 30 | ✅ Todos passando |
 | `test_inadimplencia.py` | 11 | ✅ Todos passando |
-| **Total** | **108** | ✅ |
+| **Total** | **119** | ✅ |
