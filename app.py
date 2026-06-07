@@ -1202,38 +1202,26 @@ with aba_relatorio:
             vendas_unique = df_v.drop_duplicates(subset='Cod_Venda')[['Cod_Venda', 'Data', 'Total']]
             metricas = calcular_metricas_dashboard(vendas_unique, mes_atual, ano_atual)
 
-            # CSS: delta zero → amarelo, sem triângulo (substituído por →)
-            st.markdown("""
-<style>
-[data-testid="stMetricDeltaIcon-Off"] { display: none !important; }
-[data-testid="stMetricDelta"]:has([data-testid="stMetricDeltaIcon-Off"]) {
-    color: #f59e0b !important;
-}
-</style>
-""", unsafe_allow_html=True)
-
             def _fmt_delta_br(v):
-                """Delta monetário: None=oculto, 0=amarelo →, ±=verde/vermelho."""
-                if v is None:
+                """Delta monetário: None=oculto, 0=None (indicador externo), ±=verde/vermelho."""
+                if v is None or v == 0:
                     return None
-                if v == 0:
-                    return "→ R$ 0,00"
                 abs_fmt = formatar_br(abs(v))
                 return f"-{abs_fmt}" if v < 0 else f"+{abs_fmt}"
 
             def _delta_int(v):
-                """Delta inteiro: None=oculto, 0=amarelo →, ±=verde/vermelho."""
-                if v is None:
+                """Delta inteiro: None=oculto, 0=None (indicador externo), ±=verde/vermelho."""
+                if v is None or v == 0:
                     return None
-                if v == 0:
-                    return "→ 0"
                 return v
 
-            def _delta_color(v):
-                """'off' para zero (amarelo via CSS), 'normal' para os demais."""
-                if v is not None and v == 0:
-                    return "off"
-                return "normal"
+            def _zero_badge(col, v):
+                """Renderiza '→ 0' amarelo abaixo da métrica quando delta == 0."""
+                if v == 0:
+                    col.markdown(
+                        '<p style="color:#f59e0b;font-size:14px;margin-top:-12px">→ 0</p>',
+                        unsafe_allow_html=True
+                    )
 
             fat_d = metricas['delta_fat']
             qtd_d = metricas['delta_qtd']
@@ -1244,20 +1232,25 @@ with aba_relatorio:
                 "Faturamento do mês",
                 formatar_br(metricas['faturamento']),
                 delta=_fmt_delta_br(fat_d),
-                delta_color=_delta_color(fat_d)
+                delta_color="normal"
             )
+            _zero_badge(d1, fat_d)
+
             d2.metric(
                 "Vendas no mês",
                 str(metricas['qtd_vendas']),
                 delta=_delta_int(qtd_d),
-                delta_color=_delta_color(qtd_d)
+                delta_color="normal"
             )
+            _zero_badge(d2, qtd_d)
+
             d3.metric(
                 "Ticket médio",
                 formatar_br(metricas['ticket_medio']),
                 delta=_fmt_delta_br(tk_d),
-                delta_color=_delta_color(tk_d)
+                delta_color="normal"
             )
+            _zero_badge(d3, tk_d)
 
             st.divider()
             st.markdown("### 🏆 Top 3 Produtos do Mês")
