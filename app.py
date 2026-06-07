@@ -1216,10 +1216,11 @@ with aba_relatorio:
                 return v
 
             def _zero_badge(col, v):
-                """Renderiza '→ 0' amarelo abaixo da métrica quando delta == 0."""
+                """Renderiza badge 'Sem variação' âmbar abaixo da métrica quando delta == 0."""
                 if v == 0:
                     col.markdown(
-                        '<p style="color:#f59e0b;font-size:14px;margin-top:-12px">→ 0</p>',
+                        '<span style="background:#f59e0b;color:#fff;padding:2px 8px;'
+                        'border-radius:4px;font-size:13px">Sem variação</span>',
                         unsafe_allow_html=True
                     )
 
