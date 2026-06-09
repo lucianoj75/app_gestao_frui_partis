@@ -9,19 +9,62 @@ Banco **PostgreSQL** hospedado no **Supabase**, acessado via `psycopg2` (escrita
 | Categoria | Tipo PostgreSQL | Aplicação |
 |---|---|---|
 | Chaves primárias e FKs | `integer` | `Cod_*`, `id`, `venda_id`, `criado_por`, `alterado_por` |
-| Flags booleanas | `integer` (0/1) | `ativo`, `admin`, `Status` |
+| Flags booleanas | `boolean` | `Status` em `produtos` |
+| Flags inteiras (0/1) | `integer` | `ativo`, `admin` em `usuarios` |
 | Valores monetários (R$) | `numeric(10,2)` | Preços, totais, custos, pagamentos |
 | Percentuais | `numeric(5,2)` | Desconto |
 | Quantidades inteiras | `integer` | Estoques, quantidades de itens |
-| Textos livres e datas | `text` | Nomes, observações, datas em formato `dd/mm/aaaa hh:mm:ss` |
-| Datas estruturadas | `date` | `data_pagamento`, `data_cobranca` |
-| Timestamps de auditoria | `timestamp` | `criado_em` em tabelas de transação |
+| Textos livres | `text` | Nomes, observações, tokens |
+| Datas de negócio | `date` | `Data_Nasc`, `data_pagamento`, `data_cobranca` |
+| Datas de auditoria (texto) | `text` | Datas em formato `dd/mm/aaaa hh:mm:ss` nas tabelas legadas |
+| Timestamps de auditoria | `timestamp` | `criado_em` em tabelas de transação novas |
 
 > **Por que `numeric` para dinheiro?** O tipo `real` (float4) é ponto flutuante binário e armazena `19.90` como `19.899999618...`. O `numeric` tem precisão exata e é o padrão correto para valores financeiros.
 
 ---
 
-## Tabelas
+## Tabelas de Domínio
+
+### `categorias`
+Categorias de produtos. Referenciada por `produtos.cod_categoria`.
+
+| Coluna | Tipo | Descrição |
+|---|---|---|
+| `cod_categoria` | `integer` PK | Código sequencial gerado automaticamente (início em 1) |
+| `nome` | `text` | Nome da categoria |
+
+**Valores cadastrados:**
+
+| cod_categoria | nome |
+|---|---|
+| 1 | Arte Digital |
+| 2 | Brinde Personalizado |
+| 3 | Caneca |
+| 4 | Gráfica |
+| 5 | Não Personalizado |
+| 6 | Papelaria Criativa |
+| 7 | Plottagem |
+| 8 | Produtos pronta entrega |
+
+---
+
+### `unidade_medida`
+Unidades de medida dos produtos. Referenciada por `produtos.cod_unidade_medida`.
+
+| Coluna | Tipo | Descrição |
+|---|---|---|
+| `cod_unidade_medida` | `integer` PK | Código sequencial gerado automaticamente (início em 1) |
+| `nome` | `text` | Nome da unidade |
+
+**Valores cadastrados:**
+
+| cod_unidade_medida | nome |
+|---|---|
+| 1 | Peça |
+
+---
+
+## Tabelas Principais
 
 ### `usuarios`
 Controla o acesso ao sistema. Cada registro representa um usuário com e-mail e senha (hash bcrypt). O fluxo de ativação e redefinição de senha usa tokens UUID com validade de 24 horas armazenados aqui.
@@ -56,8 +99,7 @@ Cadastro de clientes Pessoa Física (PF) e Pessoa Jurídica (PJ). Usado na sele�
 | `Telefone` | `text` | Telefone de contato |
 | `CPF_CNPJ` | `text` | Documento fiscal |
 | `RG/IE` | `text` | RG (PF) ou Inscrição Estadual (PJ) |
-| `Data_Nasc` | `text` | Data de nascimento |
-| `Debito_Credito` | `text` | Saldo histórico do sistema anterior |
+| `Data_Nasc` | `date` | Data de nascimento |
 | `Observacoes` | `text` | Observações gerais |
 | `Endereco` | `text` | Logradouro |
 | `Numero` | `text` | Número do endereço |
@@ -76,27 +118,20 @@ Cadastro de clientes Pessoa Física (PF) e Pessoa Jurídica (PJ). Usado na sele�
 ---
 
 ### `produtos`
-Catálogo de produtos com controle de estoque. Produtos inativos (`Status = 0`) são ocultados na tela de venda mas preservados no histórico.
+Catálogo de produtos com controle de estoque. Produtos inativos (`Status = FALSE`) são ocultados na tela de venda mas preservados no histórico.
 
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `Cod_Produto` | `integer` PK | Identificador do produto |
 | `Nome` | `text` | Nome do produto |
-| `Preco` | `numeric(10,2)` | Preço de venda padrão |
-| `custo` | `numeric(10,2)` | Custo unitário (usado no cálculo de margem) |
+| `Preco` | `numeric(10,2)` | Preço de venda |
+| `custo` | `numeric(10,2)` | Custo unitário (usado no cálculo de margem no relatório Top 10) |
 | `Estoque Atual` | `integer` | Quantidade em estoque |
-| `Estoque Min.` | `integer` | Estoque mínimo desejado |
-| `Estoque Max.` | `integer` | Estoque máximo desejado |
-| `Status` | `integer` | `1` = ativo, `0` = inativo |
+| `Status` | `boolean` | `TRUE` = ativo, `FALSE` = inativo |
 | `Observacoes` | `text` | Observações sobre o produto |
-| `Categoria` | `text` | Categoria do produto |
-| `Unidade` | `text` | Unidade de medida |
-| `Marca` | `text` | Marca do produto |
-| `Codigo Extra` | `text` | Código auxiliar (legado) |
-| `Preco Promocional` | `numeric(10,2)` | Preço promocional (quando ativo, sobrepõe o preço padrão na venda) |
-| `Data Inicial` | `text` | Início da promoção |
-| `Data Final` | `text` | Fim da promoção |
-| `Kit / Combo` | `text` | Indicador de kit ou combo |
+| `Cor` | `text` | Cor ou código auxiliar do produto |
+| `cod_categoria` | `integer` FK → `categorias.cod_categoria` | Categoria do produto (nullable) |
+| `cod_unidade_medida` | `integer` FK → `unidade_medida.cod_unidade_medida` | Unidade de medida (nullable) |
 | `criado_por` | `integer` FK → `usuarios.id` | Usuário que criou o registro |
 | `criado_em` | `text` | Data/hora de criação |
 | `alterado_por` | `integer` FK → `usuarios.id` | Usuário da última edição |

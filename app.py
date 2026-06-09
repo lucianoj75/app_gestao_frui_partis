@@ -528,7 +528,7 @@ if 'modal_pagamento_dados' not in st.session_state: st.session_state.modal_pagam
 def carregar_estoque():
     df = executar_query('SELECT * FROM produtos')
     if df is not None and 'Status' in df.columns:
-        df['Status'] = df['Status'].map({1: True, 0: False, 'True': True, 'False': False, True: True, False: False}).fillna(True)
+        df['Status'] = df['Status'].astype(bool)
     return df
 
 @st.cache_data(ttl=600)
@@ -843,9 +843,6 @@ def processar_salvamento(df_editado, tabela, pk_col, usuario_logado):
     cursor = conn.cursor()
     try:
         agora = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
-        if 'Status' in df_final.columns:
-            df_final['Status'] = df_final['Status'].astype(int)
-
         # Colunas de auditoria que NÃO devem ser sobrescritas pelo editor
         audit_cols = {'criado_por', 'criado_em', 'alterado_por', 'alterado_em'}
 
@@ -1087,7 +1084,7 @@ with aba_venda:
                 with col1:
                     d_p   = df_p_ativos[df_p_ativos['Nome'] == nome_p].iloc[0]
                     disp  = float(d_p['Estoque Atual']) - sum(i['Qtd'] for i in st.session_state.carrinho if i['Cod_Produto'] == d_p['Cod_Produto'])
-                    p_venda_base = float(d_p.get('Preco_Promocional', 0)) if float(d_p.get('Preco_Promocional', 0)) > 0 else float(d_p.get('Preco', 0))
+                    p_venda_base = float(d_p.get('Preco', 0))
                     st.markdown(f"**Estoque Disponível:** {int(disp)}")
                 with col2:
                     qtd_v = st.number_input("Qtd", min_value=1, key=f"q_{st.session_state.reset_prod_sel_key}")
