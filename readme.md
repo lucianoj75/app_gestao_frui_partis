@@ -100,19 +100,11 @@ Quatro sub-abas independentes:
 
 ## Banco de Dados
 
-Banco **PostgreSQL** hospedado no **Supabase**, com sete tabelas:
+Banco **PostgreSQL** hospedado no **Supabase**, com sete tabelas: `usuarios`, `clientes`, `produtos`, `vendas`, `vendas_itens`, `vendas_pagamentos` e `vendas_cobrancas`.
 
-| Tabela | Descrição |
-|---|---|
-| `usuarios` | Controle de acesso: e-mail, senha (hash bcrypt), status ativo/inativo, perfil admin, tokens de ativação e redefinição de senha |
-| `clientes` | Cadastro de clientes PF e PJ |
-| `produtos` | Cadastro de produtos com controle de estoque, status ativo/inativo e custo unitário |
-| `vendas` | Cabeçalho de cada venda: cliente, data, tema e total |
-| `vendas_itens` | Itens de cada venda: produto, quantidade, valor unitário, desconto, total e observações |
-| `vendas_pagamentos` | Histórico de pagamentos por venda: valor, data e observação — inclui o pagamento no ato da venda |
-| `vendas_cobranças` | Histórico de avisos de cobrança por venda: data do contato e observação |
+Para detalhes completos sobre estrutura, tipagem e objetivo de cada tabela, consulte:
 
-Todas as tabelas possuem campos de auditoria: `criado_por`, `criado_em`, `alterado_por` e `alterado_em`.
+📄 [Base_de_Dados.md](Base_de_Dados.md)
 
 ---
 

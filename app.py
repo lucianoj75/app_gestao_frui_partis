@@ -934,7 +934,7 @@ def registrar_cobranca(venda_id, data_cobranca, observacao, usuario_id):
     try:
         cursor = conn.cursor()
         cursor.execute(
-            'INSERT INTO "vendas_cobranças" (venda_id, data_cobranca, observacao, criado_por, criado_em) '
+            'INSERT INTO vendas_cobrancas (venda_id, data_cobranca, observacao, criado_por, criado_em) '
             'VALUES (%s, %s, %s, %s, %s)',
             (venda_id, data_cobranca, observacao, usuario_id, datetime.now())
         )
