@@ -1,6 +1,6 @@
 """
 Testes unitários para calcular_faturamento_mensal, calcular_top10_produtos,
-calcular_metricas_dashboard, calcular_top3_mes e calcular_top3_ano.
+calcular_metricas_dashboard e calcular_vendas_por_categoria.
 
 Como executar (da raiz do projeto):
     pytest tests/test_relatorios.py -v
@@ -121,34 +121,28 @@ def calcular_metricas_dashboard(df_vendas, mes, ano):
     }
 
 
-def calcular_top3_mes(df_vendas, df_itens, mes, ano):
-    df_v = df_vendas.copy()
-    df_v['Data_dt'] = pd.to_datetime(df_v['Data'], dayfirst=True, errors='coerce')
-    mask = (df_v['Data_dt'].dt.month == mes) & (df_v['Data_dt'].dt.year == ano)
-    ids_mes = set(df_v[mask]['Cod_Venda'])
+def calcular_vendas_por_categoria(df_itens, df_produtos, df_categorias, mes, ano):
+    df = df_itens.copy()
+    df['Data_dt'] = pd.to_datetime(df['Data'], dayfirst=True, errors='coerce')
+    if mes is not None:
+        df = df[(df['Data_dt'].dt.month == mes) & (df['Data_dt'].dt.year == ano)]
+    else:
+        df = df[df['Data_dt'].dt.year == ano]
 
-    if not ids_mes:
-        return pd.DataFrame(columns=['Produto', 'Qtd. Vendida'])
+    if df.empty:
+        return pd.DataFrame(columns=['Categoria', 'Qtd_Vendida'])
 
-    itens_mes = df_itens[df_itens['Cod_Venda'].isin(ids_mes)]
-    agrup = itens_mes.groupby('Produto')['Qtd'].sum().reset_index()
-    agrup.columns = ['Produto', 'Qtd. Vendida']
-    return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
+    df = df.merge(df_produtos[['Cod_Produto', 'cod_categoria']], on='Cod_Produto', how='left')
 
+    if df_categorias is not None and not df_categorias.empty:
+        df = df.merge(df_categorias.rename(columns={'nome': 'Categoria'}), on='cod_categoria', how='left')
+    else:
+        df['Categoria'] = None
 
-def calcular_top3_ano(df_vendas, df_itens, ano):
-    df_v = df_vendas.copy()
-    df_v['Data_dt'] = pd.to_datetime(df_v['Data'], dayfirst=True, errors='coerce')
-    mask = df_v['Data_dt'].dt.year == ano
-    ids_ano = set(df_v[mask]['Cod_Venda'])
-
-    if not ids_ano:
-        return pd.DataFrame(columns=['Produto', 'Qtd. Vendida'])
-
-    itens_ano = df_itens[df_itens['Cod_Venda'].isin(ids_ano)]
-    agrup = itens_ano.groupby('Produto')['Qtd'].sum().reset_index()
-    agrup.columns = ['Produto', 'Qtd. Vendida']
-    return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
+    df['Categoria'] = df['Categoria'].fillna('Sem categoria')
+    resultado = df.groupby('Categoria')['Qtd'].sum().reset_index()
+    resultado.columns = ['Categoria', 'Qtd_Vendida']
+    return resultado.sort_values('Qtd_Vendida', ascending=False).reset_index(drop=True)
 
 
 # =============================================================================
@@ -184,38 +178,24 @@ def produtos_com_custo():
 
 
 @pytest.fixture
-def dados_top3():
-    df_v = pd.DataFrame([
-        {'Cod_Venda': 1, 'Data': '01/06/2026', 'Total': 100.0},
-        {'Cod_Venda': 2, 'Data': '15/06/2026', 'Total': 200.0},
+def dados_rosca():
+    """Itens com Cod_Produto, produtos com cod_categoria e tabela de categorias."""
+    df_itens = pd.DataFrame([
+        {'Cod_Venda': 1, 'Data': '05/06/2026', 'Cod_Produto': 1, 'Qtd': 10},
+        {'Cod_Venda': 1, 'Data': '05/06/2026', 'Cod_Produto': 2, 'Qtd': 5},
+        {'Cod_Venda': 2, 'Data': '10/06/2026', 'Cod_Produto': 1, 'Qtd': 8},
+        {'Cod_Venda': 3, 'Data': '03/05/2026', 'Cod_Produto': 3, 'Qtd': 4},
     ])
-    df_i = pd.DataFrame([
-        {'Cod_Venda': 1, 'Produto': 'Maçã',   'Qtd': 10},
-        {'Cod_Venda': 1, 'Produto': 'Pera',   'Qtd': 5},
-        {'Cod_Venda': 2, 'Produto': 'Maçã',   'Qtd': 15},
-        {'Cod_Venda': 2, 'Produto': 'Banana', 'Qtd': 3},
-        {'Cod_Venda': 2, 'Produto': 'Uva',    'Qtd': 8},
+    df_produtos = pd.DataFrame([
+        {'Cod_Produto': 1, 'cod_categoria': 1},
+        {'Cod_Produto': 2, 'cod_categoria': 2},
+        {'Cod_Produto': 3, 'cod_categoria': None},
     ])
-    return df_v, df_i
-
-
-@pytest.fixture
-def dados_top3_ano():
-    """Vendas distribuídas em dois meses do mesmo ano, com 4 produtos distintos."""
-    df_v = pd.DataFrame([
-        {'Cod_Venda': 1, 'Data': '05/01/2026', 'Total': 100.0},
-        {'Cod_Venda': 2, 'Data': '10/02/2026', 'Total': 200.0},
-        {'Cod_Venda': 3, 'Data': '15/02/2026', 'Total': 150.0},
+    df_categorias = pd.DataFrame([
+        {'cod_categoria': 1, 'nome': 'Caneca'},
+        {'cod_categoria': 2, 'nome': 'Gráfica'},
     ])
-    df_i = pd.DataFrame([
-        {'Cod_Venda': 1, 'Produto': 'Maçã',   'Qtd': 10},
-        {'Cod_Venda': 1, 'Produto': 'Pera',   'Qtd': 4},
-        {'Cod_Venda': 2, 'Produto': 'Maçã',   'Qtd': 15},
-        {'Cod_Venda': 2, 'Produto': 'Banana', 'Qtd': 6},
-        {'Cod_Venda': 3, 'Produto': 'Uva',    'Qtd': 2},
-        {'Cod_Venda': 3, 'Produto': 'Banana', 'Qtd': 9},
-    ])
-    return df_v, df_i
+    return df_itens, df_produtos, df_categorias
 
 
 # =============================================================================
@@ -405,73 +385,41 @@ class TestCalcularMetricasDashboard:
 
 
 # =============================================================================
-# Testes: calcular_top3_mes
+# Testes: calcular_vendas_por_categoria
 # =============================================================================
 
-class TestCalcularTop3Mes:
+class TestCalcularVendasPorCategoria:
 
-    def test_top3_maximo_3_produtos(self, dados_top3):
-        df_v, df_i = dados_top3
-        resultado = calcular_top3_mes(df_v, df_i, 6, 2026)
-        assert len(resultado) <= 3
+    def test_rosca_colunas(self, dados_rosca):
+        """DataFrame retornado contém Categoria e Qtd_Vendida."""
+        df_i, df_p, df_c = dados_rosca
+        resultado = calcular_vendas_por_categoria(df_i, df_p, df_c, 6, 2026)
+        assert {'Categoria', 'Qtd_Vendida'}.issubset(resultado.columns)
 
-    def test_top3_ordenacao(self, dados_top3):
-        df_v, df_i = dados_top3
-        resultado = calcular_top3_mes(df_v, df_i, 6, 2026)
-        qtds = resultado['Qtd. Vendida'].tolist()
-        assert qtds == sorted(qtds, reverse=True)
+    def test_rosca_mes_especifico(self, dados_rosca):
+        """Filtra corretamente pelo mês informado (junho: Caneca=18, Gráfica=5)."""
+        df_i, df_p, df_c = dados_rosca
+        resultado = calcular_vendas_por_categoria(df_i, df_p, df_c, 6, 2026)
+        caneca = resultado[resultado['Categoria'] == 'Caneca']['Qtd_Vendida'].values
+        assert len(caneca) == 1
+        assert caneca[0] == 18  # Cod_Produto 1: 10 + 8
 
-    def test_top3_mes_sem_vendas(self, dados_top3):
-        df_v, df_i = dados_top3
-        resultado = calcular_top3_mes(df_v, df_i, 1, 2026)
+    def test_rosca_todos(self, dados_rosca):
+        """Retorna dados do ano inteiro quando mes=None."""
+        df_i, df_p, df_c = dados_rosca
+        resultado = calcular_vendas_por_categoria(df_i, df_p, df_c, None, 2026)
+        total_qtd = resultado['Qtd_Vendida'].sum()
+        assert total_qtd == 27  # 10 + 5 + 8 + 4
+
+    def test_rosca_sem_categoria(self, dados_rosca):
+        """Produtos sem categoria agrupados como 'Sem categoria'."""
+        df_i, df_p, df_c = dados_rosca
+        resultado = calcular_vendas_por_categoria(df_i, df_p, df_c, 5, 2026)
+        assert 'Sem categoria' in resultado['Categoria'].values
+
+    def test_rosca_periodo_sem_vendas(self, dados_rosca):
+        """Retorna DataFrame vazio sem erro quando não há vendas no período."""
+        df_i, df_p, df_c = dados_rosca
+        resultado = calcular_vendas_por_categoria(df_i, df_p, df_c, 1, 2026)
         assert resultado.empty
-        assert list(resultado.columns) == ['Produto', 'Qtd. Vendida']
-
-    def test_top3_produto_lider(self, dados_top3):
-        df_v, df_i = dados_top3
-        # Maçã: Cod_Venda 1 (qtd=10) + Cod_Venda 2 (qtd=15) = 25
-        resultado = calcular_top3_mes(df_v, df_i, 6, 2026)
-        assert resultado.iloc[0]['Produto'] == 'Maçã'
-        assert resultado.iloc[0]['Qtd. Vendida'] == 25
-
-
-# =============================================================================
-# Testes: calcular_top3_ano
-# =============================================================================
-
-class TestCalcularTop3Ano:
-
-    def test_top3_ano_maximo_3(self, dados_top3_ano):
-        """Nunca retorna mais de 3 linhas mesmo com 4 produtos distintos."""
-        df_v, df_i = dados_top3_ano
-        resultado = calcular_top3_ano(df_v, df_i, 2026)
-        assert len(resultado) <= 3
-
-    def test_top3_ano_ordenacao(self, dados_top3_ano):
-        """Produto com maior quantidade aparece primeiro."""
-        df_v, df_i = dados_top3_ano
-        resultado = calcular_top3_ano(df_v, df_i, 2026)
-        qtds = resultado['Qtd. Vendida'].tolist()
-        assert qtds == sorted(qtds, reverse=True)
-
-    def test_top3_ano_sem_vendas(self, dados_top3_ano):
-        """Retorna DataFrame vazio sem erro quando o ano não tem vendas."""
-        df_v, df_i = dados_top3_ano
-        resultado = calcular_top3_ano(df_v, df_i, 2020)
-        assert resultado.empty
-        assert list(resultado.columns) == ['Produto', 'Qtd. Vendida']
-
-    def test_top3_ano_produto_lider(self, dados_top3_ano):
-        """Maçã soma 25 (10+15) e deve aparecer em primeiro lugar."""
-        df_v, df_i = dados_top3_ano
-        resultado = calcular_top3_ano(df_v, df_i, 2026)
-        assert resultado.iloc[0]['Produto'] == 'Maçã'
-        assert resultado.iloc[0]['Qtd. Vendida'] == 25
-
-    def test_top3_ano_soma_correta(self, dados_top3_ano):
-        """Banana acumula qtd de dois meses distintos: 6 + 9 = 15."""
-        df_v, df_i = dados_top3_ano
-        resultado = calcular_top3_ano(df_v, df_i, 2026)
-        banana = resultado[resultado['Produto'] == 'Banana']
-        assert not banana.empty
-        assert banana.iloc[0]['Qtd. Vendida'] == 15
+        assert list(resultado.columns) == ['Categoria', 'Qtd_Vendida']

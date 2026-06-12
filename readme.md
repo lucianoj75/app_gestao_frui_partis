@@ -25,7 +25,8 @@ O sistema é organizado em quatro abas principais, acessíveis somente após aut
 - Baixa automática de estoque ao confirmar a venda
 
 ### Gestão de Produtos
-- Cadastro de novos produtos (nome, preço, estoque inicial, observações)
+- Cadastro de novos produtos (nome, preço, estoque inicial, cor, categoria, unidade de medida, observações)
+- Filtros acima da tabela: **Categoria**, **Cor**, **Status** (padrão: Ativos) e **Estoque** (slider 0–100+) — aplicados em memória, sem novas consultas
 - Edição direta na tabela: preço, custo, nome, estoque, observações e status ativo/inativo
 - Campo **Custo (R$)** editável — permite calcular margem de lucro no relatório Top 10 Produtos
 - Inativação sem exclusão — produtos inativos não aparecem para venda mas permanecem no histórico
@@ -45,8 +46,7 @@ Quatro sub-abas independentes:
   - Com mês específico: exibe delta vs mês anterior (verde ↑ / vermelho ↓ / badge âmbar "Sem variação" / sem indicador quando sem vendas); caption dinâmico abaixo das métricas indica o mês de referência (ex: "📅 Maio de 2026 · Variação em relação a Abril de 2026")
   - Com "Todos": exibe totais do ano sem delta
 - Gráfico de linha interativo (Plotly) com evolução mensal da métrica selecionada (Faturamento, Qtd. Vendas ou Ticket Médio); ponto âmbar destaca o mês selecionado no filtro
-- Top 3 produtos mais vendidos no período (mês ou ano inteiro), por quantidade
-- Alerta de produtos ativos com estoque zerado
+- Gráfico de rosca (Plotly) com distribuição de vendas por categoria no período selecionado
 
 **Vendas**
 - Histórico completo com expansão por venda, exibindo itens, valores unitários, desconto e observações

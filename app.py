@@ -548,14 +548,30 @@ def carregar_vendas():
     )
     return executar_query(query)
 
+@st.cache_data(ttl=600)
+def carregar_categorias():
+    return executar_query("SELECT cod_categoria, nome FROM categorias ORDER BY nome")
+
+@st.cache_data(ttl=600)
+def carregar_unidades():
+    return executar_query("SELECT cod_unidade_medida, nome FROM unidade_medida ORDER BY nome")
+
 # --- JANELAS POP-UP (DIALOGS) ---
 
 @st.dialog("Cadastrar Novo Produto")
 def popup_novo_produto():
+    df_cat_p = carregar_categorias()
+    df_uni_p = carregar_unidades()
+    opcoes_cat = ["(nenhuma)"] + (df_cat_p['nome'].tolist() if df_cat_p is not None and not df_cat_p.empty else [])
+    opcoes_uni = ["(nenhuma)"] + (df_uni_p['nome'].tolist() if df_uni_p is not None and not df_uni_p.empty else [])
+
     with st.form("form_novo_prod", clear_on_submit=True):
         nome        = st.text_input("Nome do Produto")
         preco       = st.number_input("Preço", min_value=0.0, step=0.1)
         estoque     = st.number_input("Estoque Inicial", min_value=0, step=1)
+        cor         = st.text_input("Cor")
+        categoria   = st.selectbox("Categoria", opcoes_cat)
+        unidade     = st.selectbox("Unidade de Medida", opcoes_uni)
         observacoes = st.text_area("Observações")
 
         if st.form_submit_button("Salvar"):
@@ -567,9 +583,24 @@ def popup_novo_produto():
                     res    = cursor.fetchone()[0]
                     novo_id = int(res) + 1 if res is not None else 1
                     agora  = datetime.now().strftime('%d/%m/%Y %H:%M:%S')
+
+                    cod_cat = None
+                    if categoria != "(nenhuma)" and df_cat_p is not None:
+                        cod_match = df_cat_p[df_cat_p['nome'] == categoria]['cod_categoria'].values
+                        if len(cod_match) > 0:
+                            cod_cat = int(cod_match[0])
+
+                    cod_uni = None
+                    if unidade != "(nenhuma)" and df_uni_p is not None:
+                        uni_match = df_uni_p[df_uni_p['nome'] == unidade]['cod_unidade_medida'].values
+                        if len(uni_match) > 0:
+                            cod_uni = int(uni_match[0])
+
+                    cor_val = cor.strip() if cor.strip() else None
+
                     cursor.execute(
-                        "INSERT INTO produtos (\"Cod_Produto\", \"Nome\", \"Preco\", \"Estoque Atual\", \"Observacoes\", \"Status\", criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)",
-                        (novo_id, nome, preco, estoque, observacoes, 1, usuario_logado['id'], agora)
+                        'INSERT INTO produtos ("Cod_Produto", "Nome", "Preco", "Estoque Atual", "Observacoes", "Status", "Cor", cod_categoria, cod_unidade_medida, criado_por, criado_em) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)',
+                        (novo_id, nome, preco, estoque, observacoes, True, cor_val, cod_cat, cod_uni, usuario_logado['id'], agora)
                     )
                     conn.commit()
                     st.success("Produto cadastrado com sucesso!")
@@ -797,40 +828,32 @@ def calcular_metricas_dashboard(df_vendas, mes, ano):
     }
 
 
-def calcular_top3_mes(df_vendas, df_itens, mes, ano):
-    """Retorna DataFrame com Produto e Qtd. Vendida (top 3, decrescente) para o mês/ano informado.
-    Retorna DataFrame vazio se não houver vendas no período."""
-    df_v = df_vendas.copy()
-    df_v['Data_dt'] = pd.to_datetime(df_v['Data'], dayfirst=True, errors='coerce')
-    mask = (df_v['Data_dt'].dt.month == mes) & (df_v['Data_dt'].dt.year == ano)
-    ids_mes = set(df_v[mask]['Cod_Venda'])
+def calcular_vendas_por_categoria(df_itens, df_produtos, df_categorias, mes, ano):
+    """Cruza itens de venda com produtos e categorias.
+    Filtra pelo período (mes=None para ano inteiro).
+    Retorna DataFrame com colunas: Categoria e Qtd_Vendida.
+    Produtos sem categoria agrupados como 'Sem categoria'."""
+    df = df_itens.copy()
+    df['Data_dt'] = pd.to_datetime(df['Data'], dayfirst=True, errors='coerce')
+    if mes is not None:
+        df = df[(df['Data_dt'].dt.month == mes) & (df['Data_dt'].dt.year == ano)]
+    else:
+        df = df[df['Data_dt'].dt.year == ano]
 
-    if not ids_mes:
-        return pd.DataFrame(columns=['Produto', 'Qtd. Vendida'])
+    if df.empty:
+        return pd.DataFrame(columns=['Categoria', 'Qtd_Vendida'])
 
-    itens_mes = df_itens[df_itens['Cod_Venda'].isin(ids_mes)]
-    agrup = itens_mes.groupby('Produto')['Qtd'].sum().reset_index()
-    agrup.columns = ['Produto', 'Qtd. Vendida']
-    return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
+    df = df.merge(df_produtos[['Cod_Produto', 'cod_categoria']], on='Cod_Produto', how='left')
 
+    if df_categorias is not None and not df_categorias.empty:
+        df = df.merge(df_categorias.rename(columns={'nome': 'Categoria'}), on='cod_categoria', how='left')
+    else:
+        df['Categoria'] = None
 
-def calcular_top3_ano(df_vendas, df_itens, ano):
-    """Agrupa todos os itens de vendas do ano informado, soma quantidade por produto
-    e retorna DataFrame com colunas Produto e Qtd. Vendida (top 3, decrescente).
-    Retorna DataFrame vazio se não houver vendas no período.
-    Usar quando o filtro de mês estiver em 'Todos'."""
-    df_v = df_vendas.copy()
-    df_v['Data_dt'] = pd.to_datetime(df_v['Data'], dayfirst=True, errors='coerce')
-    mask = df_v['Data_dt'].dt.year == ano
-    ids_ano = set(df_v[mask]['Cod_Venda'])
-
-    if not ids_ano:
-        return pd.DataFrame(columns=['Produto', 'Qtd. Vendida'])
-
-    itens_ano = df_itens[df_itens['Cod_Venda'].isin(ids_ano)]
-    agrup = itens_ano.groupby('Produto')['Qtd'].sum().reset_index()
-    agrup.columns = ['Produto', 'Qtd. Vendida']
-    return agrup.sort_values('Qtd. Vendida', ascending=False).head(3).reset_index(drop=True)
+    df['Categoria'] = df['Categoria'].fillna('Sem categoria')
+    resultado = df.groupby('Categoria')['Qtd'].sum().reset_index()
+    resultado.columns = ['Categoria', 'Qtd_Vendida']
+    return resultado.sort_values('Qtd_Vendida', ascending=False).reset_index(drop=True)
 
 
 def processar_salvamento(df_editado, tabela, pk_col, usuario_logado):
@@ -1024,6 +1047,8 @@ def popup_receber_pagamento():
 df_p = carregar_estoque()
 df_c = carregar_clientes()
 df_v = carregar_vendas()
+df_cat = carregar_categorias()
+df_uni = carregar_unidades()
 
 # --- AUXILIARES ---
 def formatar_br(valor):
@@ -1156,9 +1181,44 @@ with aba_gestao_p:
         if st.session_state.p_alterado:
             st.warning("⚠️ Você tem alterações não salvas! Clique em **Salvar Edições de Produtos** para efetivá-las.")
 
+        # --- Filtros ---
+        fc1, fc2, fc3, fc4 = st.columns(4)
+        with fc1:
+            lista_cats_f = ["Todas"] + (df_cat['nome'].tolist() if df_cat is not None and not df_cat.empty else [])
+            filtro_cat_p = st.selectbox("Categoria", lista_cats_f, key="fp_cat")
+        with fc2:
+            cores_f = sorted([str(c) for c in df_p['Cor'].dropna().unique() if str(c).strip() not in ("", "None", "nan")])
+            filtro_cor_p = st.selectbox("Cor", ["Todas"] + cores_f, key="fp_cor")
+        with fc3:
+            filtro_status_p = st.selectbox("Status", ["Ativos", "Todos", "Inativos"], key="fp_status")
+        with fc4:
+            filtro_est_p = st.slider("Estoque", min_value=0, max_value=100, value=(0, 100), key="fp_est")
+            if filtro_est_p[1] == 100:
+                st.caption("↑ 100 = sem limite superior")
+
+        # Aplicar filtros
+        df_p_filtrado = df_p.copy()
+        if filtro_cat_p != "Todas" and df_cat is not None and not df_cat.empty:
+            cod_cat_f = df_cat[df_cat['nome'] == filtro_cat_p]['cod_categoria'].values
+            if len(cod_cat_f) > 0:
+                df_p_filtrado = df_p_filtrado[df_p_filtrado['cod_categoria'] == cod_cat_f[0]]
+        if filtro_cor_p != "Todas":
+            df_p_filtrado = df_p_filtrado[df_p_filtrado['Cor'] == filtro_cor_p]
+        if filtro_status_p == "Ativos":
+            df_p_filtrado = df_p_filtrado[df_p_filtrado['Status'] == True]
+        elif filtro_status_p == "Inativos":
+            df_p_filtrado = df_p_filtrado[df_p_filtrado['Status'] == False]
+        emin_f, emax_f = filtro_est_p
+        if emax_f < 100:
+            df_p_filtrado = df_p_filtrado[
+                (df_p_filtrado['Estoque Atual'] >= emin_f) & (df_p_filtrado['Estoque Atual'] <= emax_f)
+            ]
+        else:
+            df_p_filtrado = df_p_filtrado[df_p_filtrado['Estoque Atual'] >= emin_f]
+
         # Ocultar colunas de auditoria na visualização
         colunas_ocultar = {'criado_por': None, 'criado_em': None, 'alterado_por': None, 'alterado_em': None}
-        res_p = st.data_editor(df_p, hide_index=True, num_rows="fixed", width='stretch', key=f"p_ed_{st.session_state.p_key}",
+        res_p = st.data_editor(df_p_filtrado, hide_index=True, num_rows="fixed", width='stretch', key=f"p_ed_{st.session_state.p_key}",
             column_config={
                 "Cod_Produto":  st.column_config.NumberColumn("ID", disabled=True, format="%d"),
                 "Status":       st.column_config.CheckboxColumn("Ativo", default=True),
@@ -1168,7 +1228,7 @@ with aba_gestao_p:
                 **colunas_ocultar
             })
 
-        if not df_p.equals(res_p.reset_index(drop=True)):
+        if not df_p_filtrado.reset_index(drop=True).equals(res_p.reset_index(drop=True)):
             st.session_state.p_alterado = True
 
         if salvar_p:
@@ -1342,31 +1402,30 @@ with aba_relatorio:
 
             st.divider()
 
-            # --- Bloco 3: Top 3 Produtos ---
-            st.markdown("### 🏆 Top 3 Produtos")
-            df_itens_dash = df_rep[['Cod_Venda', 'Produto', 'Qtd']].copy()
-            if filtro_mes_dash == "Todos":
-                top3 = calcular_top3_ano(vendas_unique, df_itens_dash, ano_atual)
-            else:
-                top3 = calcular_top3_mes(vendas_unique, df_itens_dash, mes_sel, ano_atual)
-            if top3.empty:
+            # --- Bloco 3: Gráfico de rosca — Vendas por Categoria ---
+            st.markdown("### 🍩 Vendas por Categoria")
+            df_itens_cat = df_rep[['Cod_Venda', 'Data', 'Cod_Produto', 'Qtd']].copy()
+            df_rosca = calcular_vendas_por_categoria(df_itens_cat, df_p, df_cat, mes_sel, ano_atual)
+            if df_rosca.empty:
                 st.info("Nenhuma venda registrada neste período.")
             else:
-                st.dataframe(top3, hide_index=True, width="stretch")
-
-            st.divider()
-
-            # --- Bloco 4: Estoque zerado ---
-            st.markdown("### ⚠️ Produtos com Estoque Zerado")
-            if df_p is not None and not df_p.empty:
-                est_zero = df_p[
-                    (df_p['Status'] == True) & (df_p['Estoque Atual'] == 0)
-                ][['Nome', 'Estoque Atual']].copy()
-                est_zero.columns = ['Produto', 'Estoque']
-                if est_zero.empty:
-                    st.success("Nenhum produto com estoque zerado.")
-                else:
-                    st.dataframe(est_zero, hide_index=True, width="stretch")
+                hover_rosca = [
+                    f"{cat}<br>Qtd: {int(qtd)}"
+                    for cat, qtd in zip(df_rosca['Categoria'], df_rosca['Qtd_Vendida'])
+                ]
+                fig_rosca = go.Figure(go.Pie(
+                    labels=df_rosca['Categoria'],
+                    values=df_rosca['Qtd_Vendida'],
+                    hole=0.4,
+                    text=hover_rosca,
+                    hovertemplate='%{text}<br>%{percent}<extra></extra>',
+                ))
+                fig_rosca.update_layout(
+                    title_text="Vendas por Categoria",
+                    margin=dict(l=10, r=10, t=40, b=10),
+                    height=350,
+                )
+                st.plotly_chart(fig_rosca, use_container_width=True)
 
     with sub_vendas:
         if df_v is None or df_v.empty:
@@ -1440,6 +1499,7 @@ with aba_relatorio:
                             st.markdown(f"**Total:** {formatar_br(row['Total'])} | **Pago:** {formatar_br(row['Vlr_Pago'])} | **Pendente:** {formatar_br(pendente)}")
                             st.divider()
                         itens = df_rep[df_rep['Cod_Venda'] == row['Cod_Venda']].copy()
+                        itens['Desconto']      = itens['Desconto'].round(2)
                         itens['Vlr. Unitário'] = itens['Vlr_Unitario'].apply(formatar_br)
                         itens['Vlr. Total']    = itens['Total_Item'].apply(formatar_br)
                         st.table(itens[['Produto', 'Qtd', 'Vlr. Unitário', 'Desconto', 'Vlr. Total', 'Observacoes']])

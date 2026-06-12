@@ -231,7 +231,7 @@ Persiste as edições feitas nas tabelas de produtos e clientes, protegendo colu
 
 ---
 
-### `test_relatorios.py` — 35 testes
+### `test_relatorios.py` — 31 testes
 
 Cobre as funções puras extraídas das abas de relatórios. Testadas com DataFrames sintéticos simples.
 
@@ -279,26 +279,16 @@ Retorna dicionário com faturamento, qtd_vendas, ticket_medio e deltas vs mês a
 | Mês sem vendas | Retorna zeros e delta `None` sem erro |
 | Sem divisão por zero | ticket_medio = 0 quando qtd_vendas = 0 |
 
-#### `calcular_top3_mes(df_vendas, df_itens, mes, ano)` — 4 casos
-Retorna os 3 produtos mais vendidos (por quantidade) no mês informado.
+#### `calcular_vendas_por_categoria(df_itens, df_produtos, df_categorias, mes, ano)` — 5 casos
+Cruza itens de venda com produtos e categorias para montar o gráfico de rosca do Dashboard. Filtra pelo mês selecionado ou retorna o ano inteiro quando `mes=None`.
 
 | Caso | Resultado esperado |
 |---|---|
-| Máximo 3 produtos | Nunca retorna mais de 3 linhas |
-| Ordenação decrescente | Produto com maior quantidade aparece primeiro |
-| Mês sem vendas | Retorna DataFrame vazio com colunas corretas |
-| Produto líder correto | Produto com maior quantidade total no mês aparece em 1º |
-
-#### `calcular_top3_ano(df_vendas, df_itens, ano)` — 5 casos
-Retorna os 3 produtos mais vendidos (por quantidade) em todo o ano informado. Usado quando o filtro do Dashboard está em "Todos".
-
-| Caso | Resultado esperado |
-|---|---|
-| Máximo 3 produtos | Nunca retorna mais de 3 linhas mesmo com 4 produtos distintos |
-| Ordenação decrescente | Produto com maior quantidade total aparece primeiro |
-| Ano sem vendas | Retorna DataFrame vazio com colunas corretas sem erro |
-| Produto líder correto | Produto com maior soma anual aparece em 1º com quantidade correta |
-| Soma entre meses | Produto que vendeu em meses diferentes tem quantidades somadas corretamente |
+| Colunas obrigatórias | DataFrame contém `Categoria` e `Qtd_Vendida` |
+| Filtro por mês | Agrupa apenas itens do mês informado com quantidades corretas |
+| Todos os meses | Com `mes=None`, soma todos os itens do ano |
+| Produto sem categoria | Itens sem `cod_categoria` agrupados como `"Sem categoria"` |
+| Período sem vendas | Retorna DataFrame vazio com colunas corretas sem erro |
 
 ---
 
@@ -363,6 +353,6 @@ As mudanças abaixo melhoraram a testabilidade do código sem alterar nenhum com
 |---|---|---|
 | `test_funcoes_puras.py` | 53 | ✅ Todos passando |
 | `test_banco_mock.py` | 25 | ✅ Todos passando |
-| `test_relatorios.py` | 35 | ✅ Todos passando |
+| `test_relatorios.py` | 31 | ✅ Todos passando |
 | `test_inadimplencia.py` | 11 | ✅ Todos passando |
-| **Total** | **124** | ✅ |
+| **Total** | **120** | ✅ |
